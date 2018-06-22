@@ -1,5 +1,7 @@
 inp.data <- read.csv("../data/protein_data.csv")
 
+sprintf("%d empty cells out of %d in dataset giving frequency of %f", sum(is.na(inp.data)), (nrow(inp.data)*ncol(inp.data)), ((sum(is.na(inp.data)))/(nrow(inp.data)*ncol(inp.data))))
+
 row.del.count <- 0
 col.del.count <- 0
 
@@ -32,10 +34,10 @@ for (i in rev(1:nrow(inp.data))){
 sprintf("%d rows removed", row.del.count)
 sprintf("Data consist of %d columns and %d rows", ncol(inp.data), nrow(inp.data))
 
+sprintf("%d empty cells out of %d in filtered dataset giving frequency of %f", sum(is.na(inp.data)), (nrow(inp.data)*ncol(inp.data)), ((sum(is.na(inp.data)))/(nrow(inp.data)*ncol(inp.data))))
 
-
-library('bnstruct')
+# library('bnstruct')
 
 # Initially arbitrarily use k=10
-X.imp <- data.frame(knn.impute(as.matrix(inp.data), k=10))
-write.csv(X.imp, file="../data/protein_data_filtimp_k10.csv")
+# X.imp <- data.frame(knn.impute(as.matrix(inp.data), k=10))
+# write.csv(X.imp, file="../data/protein_data_filtimp_k10.csv")
