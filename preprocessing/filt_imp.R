@@ -1,4 +1,4 @@
-inp.data <- read.csv("../data/protein_data.csv")
+inp.data <- read.csv("../data/extraction_retry/protein_data_hiv_all.csv")
 
 sprintf("%d empty cells out of %d in dataset giving frequency of %f", sum(is.na(inp.data)), (nrow(inp.data)*ncol(inp.data)), ((sum(is.na(inp.data)))/(nrow(inp.data)*ncol(inp.data))))
 
@@ -12,6 +12,7 @@ for (i in rev(1:ncol(inp.data))){
   n.na.col <- sum(is.na(inp.data[,i]))
   f.na.col <- n.na.col/nrow(inp.data)
   if (f.na.col >= 0.9){
+    print(i)
     inp.data <- inp.data[,-i]
     col.del.count <- col.del.count + 1
   }
@@ -36,8 +37,18 @@ sprintf("Data consist of %d columns and %d rows", ncol(inp.data), nrow(inp.data)
 
 sprintf("%d empty cells out of %d in filtered dataset giving frequency of %f", sum(is.na(inp.data)), (nrow(inp.data)*ncol(inp.data)), ((sum(is.na(inp.data)))/(nrow(inp.data)*ncol(inp.data))))
 
-# library('bnstruct')
 
-# Initially arbitrarily use k=10
-# X.imp <- data.frame(knn.impute(as.matrix(inp.data), k=10))
-# write.csv(X.imp, file="../data/protein_data_filtimp_k10.csv")
+
+library('bnstruct')
+
+
+
+#Impute remaining empty cells
+print("Initiating imputation")
+X.imp <- data.frame(knn.impute(as.matrix(inp.data[,-c(1,2,3)]), k=10)) #Initially arbitrarily use k=10
+Pt <- inp.data$Pt
+inf.status <- inp.data$inf.status
+X.imp <- data.frame(Pt, inf.status, X.imp)
+
+print("Writing to CSV")
+write.csv(X.imp, file="../data/extraction_retry/protein_data_hiv_all_filtimp_k10.csv")

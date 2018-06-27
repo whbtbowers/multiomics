@@ -36,3 +36,6 @@ sprintf("%d rows removed", row.del.count)
 sprintf("Data consist of %d columns and %d rows", ncol(inp.data), nrow(inp.data))
 
 sprintf("%d empty cells out of %d in filtered dataset giving frequency of %f", sum(is.na(inp.data)), (nrow(inp.data)*ncol(inp.data)), ((sum(is.na(inp.data)))/(nrow(inp.data)*ncol(inp.data))))
+
+#library('bnstruct')
+write.csv(inp.data, file="../data/gene_data.csv")
