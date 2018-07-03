@@ -1,3 +1,5 @@
+setwd("/project/home17/whb17/Documents/project3/project_files/preprocessing/")
+
 library(ggplot2)
 library(stats)
 library(ggfortify)
@@ -25,11 +27,12 @@ png("../data/protein_extraction_retry/img/prot_bplot_all.png",
     pointsize = 8)        # smaller font size
 
 plot.new()
-par(xaxt="n", mar=c(10,5,1,1))
+par(xaxt="n", mar=c(10,5,3,1))
 boxplot(df.prot_data.all.body, col="gold")
 lablist<-as.vector(colnames(df.prot_data.all.body))
 axis(1, at=seq(1, ncol(df.prot_data.all.body), by=1), labels = FALSE)
 text(seq(1, ncol(df.prot_data.all.body), by=1), par("usr")[3] - 0.2, labels = lablist, srt = 90, pos = 2, xpd = TRUE)
+title("All patients, unscaled")
 dev.off()
 
 # Heatmap for HIV+ and HIV-
@@ -44,6 +47,7 @@ heatmap3(df.prot_data.all.body,
          Rowv=NA,
          Colv=NA,
          margins=c(10,5),
+         main= "All patients, unscaled",
          xlab="Proteins",
          ylab="Patients",
 )
@@ -57,7 +61,7 @@ png("../data/protein_extraction_retry/img/prot_pca_pc1_pc2_hiv_all.png",
     res = 300,            # 300 pixels per inch
     pointsize = 8)        # smaller font size
 
-autoplot(prcomp(df.prot_data.all.body), data = df.prot_data.all, colour = "inf.status")
+autoplot(prcomp(df.prot_data.all.body), data = df.prot_data.all, colour = "inf.status", main="All patients")
 dev.off()
 
 # Principal components 3 & 4 for HIV+ and HIV-
