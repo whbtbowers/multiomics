@@ -4,3 +4,5 @@ df.prot_data.hiv_pos <- read.csv("../../data/gene_ex/gene_data_hiv_pos.csv", hea
 
 df.prot_data.hiv_pos.body <- df.prot_data.hiv_pos[,-c(1,2)]
 
+library(limma)
+
