@@ -42,7 +42,6 @@ sprintf("%d empty cells out of %d in filtered dataset giving frequency of %f", s
 library('bnstruct')
 
 
-
 #Impute remaining empty cells
 print("Initiating imputation")
 X.imp <- data.frame(knn.impute(as.matrix(inp.data[,-c(1,2,3)]), k=10)) #Initially arbitrarily use k=10

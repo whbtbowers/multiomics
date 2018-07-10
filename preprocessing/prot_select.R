@@ -1,3 +1,5 @@
+setwd("/project/home17/whb17/Documents/project3/project_files/preprocessing/")
+
 inp.prot_data <- read.csv("../data/protein_data.csv")
 inp.inf_id <- read.csv("../data/prot_id-inf.csv")
 
