@@ -1,6 +1,6 @@
-setwd("/project/home17/whb17/Documents/project3/project_files/preprocessing/ex_4/")
+setwd("/project/home17/whb17/Documents/project3/project_files/preprocessing/ex_5/")
 
-inp.data <- read.csv("../../data/ex_4/prot_data_body.csv", header=TRUE, row.names = 1) # Original
+inp.data <- read.csv("../../data/ex_5/prot_data_body_logtransformed.csv", header=TRUE, row.names = 1) # Original
 
 sprintf("%d empty cells out of %d in dataset giving frequency of %f", sum(is.na(inp.data)), (nrow(inp.data)*ncol(inp.data)), ((sum(is.na(inp.data)))/(nrow(inp.data)*ncol(inp.data))))
 
@@ -47,9 +47,10 @@ library('bnstruct')
 #Impute remaining empty cells
 print("Initiating imputation")
 
-X.t <- data.frame(t(inp.data))
+#X.t <- data.frame(t(inp.data))
 
-X.imp <- data.frame(knn.impute(as.matrix(X.t)), k=20) #Use k=20 like Wang
+#X.imp <- data.frame(knn.impute(as.matrix(X.t)), k=20) #Use k=20 like Wang
+X.imp <- t(data.frame(knn.impute(as.matrix(t(inp.data))), k=20)) #Use k=20 like Wang
 
 print("Writing to CSV")
-write.csv(X.imp, file="../../data/ex_4/prot_data_body_filtimp_k20.csv", row.names=TRUE)
+write.csv(X.imp[-nrow(X.imp),], file="../../data/ex_5/prot_data_body_logtransformed_filtimp_k20.csv", row.names=TRUE)
