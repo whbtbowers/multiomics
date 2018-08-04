@@ -19,6 +19,7 @@ sel.gene.kaforou.tb_od <- read.csv("../../data/kaforou_2013/gene_tb_od_kaforou_2
 df.prot.all <- read.csv("../../data/ex_9/prot_train_body.csv", header=TRUE, row.names = 1)
 df.gp.all <- cbind(df.prot.all, df.gene.all)
 df.meta <- read.csv("../../data/ex_9/gp_train_meta.csv", header=TRUE, row.names = 1)
+df.meta$group <- as.character(df.meta$group)
 
 # Selected features for tb vs od
 sel.gene.tb_od <- read.csv("../../data/ex_9/feat_sel/gene_tb_od_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
@@ -134,7 +135,7 @@ threshold.kaforou <- ((mean.drs.kaforou.hiv_neg.tb/sd.drs.kaforou.hiv_neg.tb)+(m
 
 threshold.my <- ((mean.drs.my.hiv_neg.tb/sd.drs.my.hiv_neg.tb)+(mean.drs.my.hiv_neg.od/sd.drs.my.hiv_neg.od))/((1/sd.drs.my.hiv_neg.tb)+(1/sd.drs.my.hiv_neg.od))
 
-# Get ROC based on DRS
+# Get ROC and boxplots based on DRS
 
 kaforou.roc <- roc(df.meta.hiv_neg.tb_od$group, drs.kaforou.hiv_neg.tb_od)
 kaforou.roc.smooth <- smooth(kaforou.roc)
@@ -143,8 +144,10 @@ png(paste("../../img/", ex_dir, date,"kaforou_2013_tb_od_roc.png", sep=""),
     height = 5*300,
     res = 300,            # 300 pixels per inch
     pointsize = 8) # smaller font size
-plot(kaforou.roc.smooth, main="ROC curve for Kaforou 2013 selected factors, TB vs OD")
+plot(kaforou.roc.smooth, main="ROC curve for Kaforou 2013 selected factors, TB vs OD", legacy.axes = TRUE)
 dev.off()
+
+# Get ROC of my DRS values
 
 my.roc <- roc(df.meta.hiv_neg.tb_od$group, drs.my.hiv_neg.tb_od)
 my.roc.smooth <- smooth(my.roc)
@@ -155,8 +158,38 @@ png(paste("../../img/", ex_dir, date,"tb_od_roc.png", sep=""),
     res = 300,            # 300 pixels per inch
     pointsize = 8) # smaller font size
 
-plot(my.roc.smooth, main="ROC curve for selected factors, TB vs OD")
+plot(my.roc.smooth, main="ROC curve for selected factors, TB vs OD", legacy.axes = TRUE)
+dev.off()
+
+# Get boxplot of my DRS values
+
+png(paste("../../img/", ex_dir, date,"tb_od_drs_boxplot.png", sep=""),
+    width = 5*300,        # 5 x 300 pixels
+    height = 5*300,
+    res = 300,            # 300 pixels per inch
+    pointsize = 8) # smaller font size
+
+plot.new()
+par(xaxt="n", mar=c(10,5,3,1))
+boxplot(as.numeric(df.meta.hiv_neg.tb_od$group), drs.my.hiv_neg.tb_od, col=c("red", "blue"))
+lablist<-as.vector(c("OD", "TB"))
+axis(1, at=seq(1, 2, by=1), labels = c("TB status", "DRS"))
+text(seq(1, 2, by=1), par("usr")[3] - 0.2, labels = lablist, srt = 90, pos = 2, xpd = TRUE)
+title(paste( "Distribution of DRS values for TB and OD", sep=" "))
 dev.off()
 
 #Get details of ROCS
 auc(my.roc)
+ci(my.roc)
+
+# Create dataframe and ggplot boxplot
+inf.group <- df.meta.hiv_neg.tb_od$group
+
+data = data.frame(inf.group, drs.my.hiv_neg.tb_od)
+
+ggplot(data, aes(x=inf.group, y=drs.my.hiv_neg.tb_od)) + 
+  geom_boxplot() +
+  labs(x = "TB status", y="Disease risk score", title ="Distribution of DRS values for TB and OD") +
+  scale_x_discrete(labels=c("1" = "TB", "6" = "OD"))
+
+ggsave(paste("../../img/", ex_dir, date,"tb_od_drs_boxplot.png", sep=""))
