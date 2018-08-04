@@ -1,4 +1,5 @@
-setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_9/")
+#setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_9/")
+setwd("/project/home17/whb17/Documents/project3/project_files/preprocessing/ex_9/")
 
 library(pROC)
 library(ggplot2)
@@ -7,7 +8,7 @@ library(ggplot2)
 set.seed(12)
 
 # To direct to the correct folder
-date <- "2018-08-01/"
+date <- "2018-08-04/"
 ex_dir <- "ex_9/"
 
 # Features selected in Kaforou 2013
@@ -27,8 +28,8 @@ sel.gp.tb_od <- rbind(sel.prot.tb_od, sel.gene.tb_od)
 # Reconstitute probe ids so kaforou stuff can be searched by id
 all.probe.ids <- c()
 
-for (i in (1+ncol(df.prot.all)):length(head(df.gp.all))){
-  id.parts <- strsplit(colnames(df.gene.all)[i], split="_")
+for (i in (1+ncol(df.prot.all)):length(df.gp.all)){
+  id.parts <- strsplit(colnames(df.gp.all)[i], split="_")
   recon.probe.id <- paste(id.parts[[1]][1], "_",id.parts[[1]][2], sep = "")
   all.probe.ids <- c(all.probe.ids, recon.probe.id)
 }
@@ -84,6 +85,8 @@ for (i in 1:nrow(df.gp.all)){
 
 ind.hiv_neg.tb <- c()
 ind.hiv_neg.od <- c()
+ind.hiv_neg.tb_od <- c()
+
 
 for (j in 1:nrow(df.prot.all)){
   if (df.meta$group[j] == 1){
@@ -97,11 +100,22 @@ for (j in 1:nrow(df.prot.all)){
   }
 }
 
+for (j in 1:nrow(df.prot.all)){
+  if ((df.meta$group[j] == 1) || (df.meta$group[j] == 6)){
+    ind.hiv_neg.tb_od <- c(ind.hiv_neg.tb_od, j)
+  }
+}
+
+df.meta.hiv_neg.tb_od <- df.meta[ind.hiv_neg.tb_od,]
+
 drs.kaforou.hiv_neg.tb <- drs.kaforou[ind.hiv_neg.tb]
 drs.kaforou.hiv_neg.od <- drs.kaforou[ind.hiv_neg.od]
+drs.kaforou.hiv_neg.tb_od <- drs.kaforou[ind.hiv_neg.tb_od]
+
 
 drs.my.hiv_neg.tb <- drs.my[ind.hiv_neg.tb]
 drs.my.hiv_neg.od <- drs.my[ind.hiv_neg.od]
+drs.my.hiv_neg.tb_od <- drs.my[ind.hiv_neg.tb_od]
 
 #Get mean and sd of drs
 mean.drs.kaforou.hiv_neg.tb <- mean(drs.kaforou.hiv_neg.tb)
@@ -119,4 +133,30 @@ sd.drs.my.hiv_neg.od <- sd(drs.my.hiv_neg.od)
 threshold.kaforou <- ((mean.drs.kaforou.hiv_neg.tb/sd.drs.kaforou.hiv_neg.tb)+(mean.drs.kaforou.hiv_neg.od/sd.drs.kaforou.hiv_neg.od))/((1/sd.drs.kaforou.hiv_neg.tb)+(1/sd.drs.kaforou.hiv_neg.od))
 
 threshold.my <- ((mean.drs.my.hiv_neg.tb/sd.drs.my.hiv_neg.tb)+(mean.drs.my.hiv_neg.od/sd.drs.my.hiv_neg.od))/((1/sd.drs.my.hiv_neg.tb)+(1/sd.drs.my.hiv_neg.od))
-  
+
+# Get ROC based on DRS
+
+kaforou.roc <- roc(df.meta.hiv_neg.tb_od$group, drs.kaforou.hiv_neg.tb_od)
+kaforou.roc.smooth <- smooth(kaforou.roc)
+png(paste("../../img/", ex_dir, date,"kaforou_2013_tb_od_roc.png", sep=""),
+    width = 5*300,        # 5 x 300 pixels
+    height = 5*300,
+    res = 300,            # 300 pixels per inch
+    pointsize = 8) # smaller font size
+plot(kaforou.roc.smooth, main="ROC curve for Kaforou 2013 selected factors, TB vs OD")
+dev.off()
+
+my.roc <- roc(df.meta.hiv_neg.tb_od$group, drs.my.hiv_neg.tb_od)
+my.roc.smooth <- smooth(my.roc)
+
+png(paste("../../img/", ex_dir, date,"tb_od_roc.png", sep=""),
+    width = 5*300,        # 5 x 300 pixels
+    height = 5*300,
+    res = 300,            # 300 pixels per inch
+    pointsize = 8) # smaller font size
+
+plot(my.roc.smooth, main="ROC curve for selected factors, TB vs OD")
+dev.off()
+
+#Get details of ROCS
+auc(my.roc)
