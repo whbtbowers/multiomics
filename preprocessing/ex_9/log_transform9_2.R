@@ -1,27 +1,16 @@
 setwd("/project/home17/whb17/Documents/project3/project_files/preprocessing/ex_9/")
 #setwd("/home/whb17/Documents/project3/project_files/preprocessing/ex_9/")
 
-library("lumi")
+#library("lumi")
 library(preprocessCore)
 library(ggfortify)
 library(ggplot2)
 
 set.seed(12)
-df.gene.body <- read.csv("../../data/ex_8/gene_data_body.csv", header=TRUE, row.names = 1)
-#df.prot.body <- read.csv("../../data/ex_8/prot_data_body.csv", header=TRUE, row.names = 1)
+#df.gene.body <- read.csv("../../data/ex_8/gene_data_body.csv", header=TRUE, row.names = 1)
+df.gene.body <- read.csv("../../data/ex_8/prot_data_body.csv", header=TRUE, row.names = 1)
 df.meta <- read.csv("../../data/ex_8/gp_data_meta.csv", header=TRUE, row.names = 1)
 df.meta$group <- as.character(df.meta$group)
-
-#t.df.gene.body <- read.csv("../../data/ex_8/gene_data_body_t.csv", header=TRUE, row.names = 1)
-
-
-
-
-#transform all files
-#write.csv(t(df.meta), "../../data/ex_8/gp_data_meta_t.csv")
-#write.csv(t(df.gene.body), "../../data/ex_8/gene_data_body_t.csv")
-
-#t.df.gene.body <- lumiR.batch("../../data/ex_8/gene_data_body_t.csv", sep=",")
 
 # Get row and column names
 probe_names <- colnames(df.gene.body)
@@ -35,7 +24,7 @@ ex_dir <- "ex_9/"
 t.df.gene.body <- t(df.gene.body)
 
 #Boxplot initial data
-png(paste("../../img/", ex_dir, date, "gene_patient_bplot.png", sep=""),
+png(paste("../../img/", ex_dir, date, "prot_patient_bplot.png", sep=""),
     width = 10000,        
     height = 2500,
     res = 300,          

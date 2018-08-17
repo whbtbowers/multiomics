@@ -66,5 +66,3 @@ dev.off()
 
 }
 
-
-# log2 transform data
