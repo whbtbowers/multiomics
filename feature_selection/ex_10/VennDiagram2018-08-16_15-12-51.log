@@ -1,0 +1,7 @@
+INFO [2018-08-16 15:12:51] $x
+INFO [2018-08-16 15:12:51] list(`TB vs OD` = sel.gene.tb_od$features, `TB vs LTBI` = sel.gene.tb_ltbi$features, 
+INFO [2018-08-16 15:12:51]     `TB vs non-TB` = sel.gene.tb_nontb$features)
+INFO [2018-08-16 15:12:51] 
+INFO [2018-08-16 15:12:51] $filename
+INFO [2018-08-16 15:12:51] NULL
+INFO [2018-08-16 15:12:51] 

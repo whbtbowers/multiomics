@@ -1,4 +1,4 @@
-setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_9/")
+setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_8/")
 
 library(limma)
 library(heatmap3)
@@ -7,27 +7,21 @@ library(glmnet)
 
 set.seed(12)
 
-#df.gene.body <- read.csv("../../data/ex_9/gene_train_body.csv", header=TRUE, row.names = 1)  # Protein test/train set
+#df.gene.body <- read.csv("../../data/ex_8/gene_train_body.csv", header=TRUE, row.names = 1)  # Protein test/train set
 
-df.prot.body <- read.csv("../../data/ex_9/prot_train_body.csv", header=TRUE, row.names = 1)  # Protein training set
+df.prot.body <- read.csv("../../data/ex_8/prot_train_body.csv", header=TRUE, row.names = 1)  # Protein train set
 
-# Barplot to quickly check distributions
-#par(xaxt="n", mar=c(10,5,3,1))
-#boxplot(df.prot.body, col="red")
-#lablist<-as.vector(colnames(df.prot.body))
-#axis(1, at=seq(1, ncol(df.prot.body), by=1), labels = FALSE)
-#text(seq(1, ncol(df.prot.body), by=1), par("usr")[3] - 0.2, labels = lablist, srt = 90, pos = 2, xpd = TRUE)
 #df.prot.body <- df.gene.body
 
-df.meta <- read.csv("../../data/ex_9/gp_train_meta.csv", header=TRUE, row.names = 1)
-#df.meta <- read.csv("../../data/ex_9/gp_data_meta.csv", header=TRUE, row.names = 1)
+df.meta <- read.csv("../../data/ex_8/gp_train_meta.csv", header=TRUE, row.names = 1)
 df.meta$group <- as.character(df.meta$group)
 
 # To direct to the correct folder
-date <- "2018-08-08/"
-ex_dir <- "ex_9/"
+date <- "2018-07-30/recheck/"
+ex_dir <- "ex_8/"
 
 # Parameters
+#alphas = c(0, 0.5, 1)
 alpha = 0.5
 K = 20
 
@@ -61,7 +55,7 @@ fit <- lmFit(t(df.prot.hiv_neg.tb_od), design)
 fit <- eBayes(fit, trend=TRUE, robust=TRUE)
 results <- decideTests(fit)
 summary(results)
-tab.res <- topTable(fit, coef=4, n=ncol(df.prot.body))
+tab.res <- topTable(fit, coef=4, n=22)
 
 png(paste("../../img/", ex_dir, date, "prot_tb_od_meandiff.png", sep=""),
     width = 5*300,        # 5 x 300 pixels
@@ -78,18 +72,14 @@ dev.off()
 ind.dif_ex <- c()
 
 
-for (k in 1:length(tab.res$adj.P.Val)){
-  if (tab.res$adj.P.Val[k] < 0.05){
-    ind.dif_ex <- c(ind.dif_ex, k)
+for (i in 1:length(tab.res$adj.P.Val)){
+  if (tab.res$adj.P.Val[i] < 0.05){
+    ind.dif_ex <- c(ind.dif_ex, i)
   }
 }
 
 sig_P = tab.res$adj.P.Val[ind.dif_ex]
 sig_factor = rownames(tab.res)[ind.dif_ex]
-
-sel.df.prot.hiv_neg.tb_od <- df.prot.hiv_neg.tb_od[match(sig_factor, colnames(df.prot.hiv_neg.tb_od))]
-
-# Get columns from significant factors
 
 ###########################
 ## Elastic net selection ##
@@ -143,6 +133,8 @@ png(paste("../../img/", ex_dir, date, "prot_tb_od_alpha_comp.png", sep=""),
     res = 300,            # 300 pixels per inch
     pointsize = 8        # smaller font size
 )
+
+
 
 par(mfrow=c(2,2))
 plot(cv1);plot(cv.5);plot(cv0)

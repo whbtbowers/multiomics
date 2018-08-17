@@ -95,25 +95,7 @@ sel.df.prot.hiv_neg.tb_od <- df.prot.hiv_neg.tb_od[match(sig_factor, colnames(df
 ## Elastic net selection ##
 ###########################
 
-# Fit to elastic net
-
-fit.glm <- glmnet(as.matrix(df.prot.hiv_neg.tb_od), 
-                  df.meta.hiv_neg.tb_od$group, 
-                  family="gaussian", 
-                  alpha=alpha
-)
-
-png(paste("../../img/", ex_dir, date, "prot_tb_od_glmnet_coeff.png", sep=""),
-    width = 5*300,        # 5 x 300 pixels
-    height = 5*300,
-    res = 300,            # 300 pixels per inch
-    pointsize = 8        # smaller font size
-)
-
-plot(fit.glm, label=TRUE)
-dev.off()
-
-# Cross-validated analysis of coefficients
+# Cross-validated analysis of coefficients to find optmal lamda cut-off
 
 cvfit <- cv.glmnet(data.matrix(df.prot.hiv_neg.tb_od), 
                    data.matrix(as.numeric(df.meta.hiv_neg.tb_od$group)), 
@@ -131,24 +113,42 @@ png(paste("../../img/", ex_dir, date, "prot_tb_od_cv_glmnet_coeff.png", sep=""),
 plot(cvfit, main="Cross-validated coefficient plot for HIV- TB vs OD protein data")
 dev.off()
 
-# Out of curiosity, comparing rige, EMN, and lasso
-foldid=sample(1:K,size=length(data.matrix(as.numeric(df.meta.hiv_neg.tb_od$group))),replace=TRUE)
-cv1=cv.glmnet(data.matrix(df.prot.hiv_neg.tb_od),data.matrix(as.numeric(df.meta.hiv_neg.tb_od$group)),foldid=foldid,alpha=1)
-cv.5=cv.glmnet(data.matrix(df.prot.hiv_neg.tb_od),data.matrix(as.numeric(df.meta.hiv_neg.tb_od$group)),foldid=foldid,alpha=.5)
-cv0=cv.glmnet(data.matrix(df.prot.hiv_neg.tb_od),data.matrix(as.numeric(df.meta.hiv_neg.tb_od$group)),foldid=foldid,alpha=0)
+#Convert to dataframe for easier sorting
+coef.cvfit.lambda1se <- coef(cvfit, s=cvfit$lambda.1se)
 
-png(paste("../../img/", ex_dir, date, "prot_tb_od_alpha_comp.png", sep=""),
+features <- coef.cvfit.lambda1se@Dimnames[[1]][which(coef.cvfit.lambda1se != 0 ) ]
+
+df.coef.cvfit.lambda1se <- data.frame(
+  features, 
+  coefs <- coef.cvfit.lambda1se[which(coef.cvfit.lambda1se != 0 ) ] 
+)
+colnames(df.coef.cvfit.lambda1se) <- c("features", "coefficients")
+
+#Remove intercept
+if(df.coef.cvfit.lambda1se$features[1] == "(Intercept)"){
+  df.coef.cvfit.lambda1se <- df.coef.cvfit.lambda1se[-1,]
+  features <- features[-1]
+}
+
+# Straightforward lasso to extract beta coefficients
+
+
+# Fit to elastic net
+
+fit.glm <- glmnet(as.matrix(df.prot.hiv_neg.tb_od), 
+                  df.meta.hiv_neg.tb_od$group,
+                  family="gaussian", 
+                  alpha=alpha
+)
+
+png(paste("../../img/", ex_dir, date, "prot_tb_od_glmnet_coeff.png", sep=""),
     width = 5*300,        # 5 x 300 pixels
     height = 5*300,
     res = 300,            # 300 pixels per inch
     pointsize = 8        # smaller font size
 )
 
-par(mfrow=c(2,2))
-plot(cv1);plot(cv.5);plot(cv0)
-plot(log(cv1$lambda),cv1$cvm,pch=19,col="red",xlab="log(Lambda)",ylab=cv1$name)
-points(log(cv.5$lambda),cv.5$cvm,pch=19,col="grey")
-points(log(cv0$lambda),cv0$cvm,pch=19,col="blue")
-legend("topleft",legend=c("alpha= 1","alpha= .5","alpha 0"),pch=19,col=c("red","grey","blue"))
+plot(fit.glm, label=TRUE)
 dev.off()
+
 

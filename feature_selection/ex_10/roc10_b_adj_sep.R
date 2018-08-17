@@ -16,19 +16,28 @@ sel.gene.kaforou.tb_ltbi <- read.csv("../../data/kaforou_2013/gene_tb_ltbi_kafor
 sel.gene.kaforou.tb_nontb <- read.csv("../../data/kaforou_2013/gene_tb_nontb_kaforou_2013.csv", header=TRUE, row.names = 1)
 
 # Selected features for tb vs od
-sel.gene.tb_od <- read.csv("../../data/ex_9/feat_sel_2/gene_tb_od_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
-sel.prot.tb_od <- read.csv("../../data/ex_9/feat_sel_2/prot_tb_od_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+sel.gene.tb_od <- read.csv("../../data/ex_10/feat_sel_1_2/gene_tb_od_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+#sel.prot.tb_od <- read.csv("../../data/ex_10/feat_sel_1_2/prot_tb_od_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 sel.gp.tb_od <- rbind(sel.prot.tb_od, sel.gene.tb_od)
 
 # Selected features for tb vs ltbi
-sel.gene.tb_ltbi <- read.csv("../../data/ex_9/feat_sel_2/gene_tb_ltbi_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
-sel.prot.tb_ltbi <- read.csv("../../data/ex_9/feat_sel_2/prot_tb_ltbi_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+sel.gene.tb_ltbi <- read.csv("../../data/ex_10/feat_sel_1_2/gene_tb_ltbi_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+#sel.prot.tb_ltbi <- read.csv("../../data/ex_10/feat_sel_1_2/prot_tb_ltbi_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 sel.gp.tb_ltbi <- rbind(sel.prot.tb_ltbi, sel.gene.tb_ltbi)
 
 # Selected features for tb vs non-tb
-sel.gene.tb_nontb <- read.csv("../../data/ex_9/feat_sel_2/gene_tb_nontb_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
-sel.prot.tb_nontb <- read.csv("../../data/ex_9/feat_sel_2/prot_tb_nontb_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+sel.gene.tb_nontb <- read.csv("../../data/ex_10/feat_sel_1_2/gene_tb_nontb_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+#sel.prot.tb_nontb <- read.csv("../../data/ex_10/feat_sel_1_2/prot_tb_nontb_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 sel.gp.nontb <- rbind(sel.prot.tb_nontb, sel.gene.tb_nontb)
+
+# Selected features for combined lasso
+
+sel.p1.gp.tb_od <- read.csv("../../data/ex_10/feat_sel_1_2/gp_tb_od_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+
+sel.p1.gp.tb_ltbi <- read.csv("../../data/ex_10/feat_sel_1_2/gp_tb_ltbi_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+
+sel.p1.gp.tb_nontb <- read.csv("../../data/ex_10/feat_sel_1_2/gp_tb_nontb_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+
 
 # Selected features for phase 2 comparisons
 
@@ -88,35 +97,42 @@ for (i in (1+ncol(df.prot.all)):length(df.gp.all)){
 
 # lists for comparing roc curves
 
-list.kaforu.rocs <- list()
+list.kaforou.rocs <- list()
 list.my.rocs <- list()
 
-# Comparison sets
-
+# Comparisons lists
 comps <- list(
+  list(sel.gene.tb_od, "", df.meta, "my", 1, 6, "TB", "OD", "HIV-","tb_od_hivneg")
+  ,
+  list(sel.gene.tb_ltbi, "", df.meta, "my", 1, 3, "TB", "LTBI", "HIV-","tb_ltbi_hivneg")
+  ,
+  list(sel.gene.tb_nontb, "", df.meta.tb_nontb, "my", 1, 7, "TB", "non-TB", "HIV-","tb_nontb_hivneg")
+  ,
   #list(sel.gene.tb_od, sel.prot.tb_ltbi, df.meta, "my", 1, 6, "TB", "OD", "HIV-","tb_od_hivneg")
   #,
   #list(sel.gene.tb_ltbi, sel.prot.tb_ltbi, df.meta, "my", 1, 3, "TB", "LTBI", "HIV-","tb_ltbi_hivneg")
   #,
   #list(sel.gene.tb_nontb, sel.prot.tb_nontb, df.meta.tb_nontb, "my", 1, 7, "TB", "non-TB", "HIV-","tb_nontb_hivneg")
   #,
-  #list(sel.p1.gp.tb_od, "", df.meta, "my", 1, 6, "TB", "OD", "HIV-", "gp_tb_od_hivneg")
+  #list(sel.phase2.gp.tb_od, "", df.meta, "my_phase2", 1, 6, "TB", "OD", "HIV-", "tb_od_hivneg_phase2")
   #,
-  #list(sel.p1.gp.tb_ltbi, "", df.meta, "my", 1, 3, "TB", "LTBI", "HIV-", "gp_tb_ltbi_hivneg")
-  #,
-  #list(sel.p1.gp.tb_nontb, "", df.meta.tb_nontb, "my", 1, 7, "TB", "non-TB", "HIV-", "gp_tb_nontb_hivneg")
-  #,
-  list(sel.phase2.gp.tb_od, "", df.meta, "my_phase2", 1, 6, "TB", "OD", "HIV-", "tb_od_hivneg_phase2")
+  list(sel.p1.gp.tb_od, "", df.meta, "my_phase2", 1, 6, "TB", "OD", "HIV-", "gp_tb_od_hivneg")
   ,
-  list(sel.phase2.gp.tb_ltbi, "", df.meta, "my_phase2", 1, 3, "TB", "LTBI", "HIV-", "tb_ltbi_hivneg_phase2")
+  list(sel.p1.gp.tb_ltbi, "", df.meta, "my_phase2", 1, 3, "TB", "LTBI", "HIV-", "gp_tb_ltbi_hivneg")
   ,
-  list(sel.phase2.gp.tb_nontb, "", df.meta.tb_nontb, "my_phase2", 1, 7, "TB", "non-TB", "HIV-", "tb_nontb_hivneg_phase2")
+  list(sel.p1.gp.tb_nontb, "", df.meta.tb_nontb, "my_phase2", 1, 7, "TB", "non-TB", "HIV-", "gp_tb_nontb_hivneg")
+  ,
+  #list(sel.phase2.gp.tb_od, "", df.meta.tb_od, "my_phase2", 1, 6, "TB", "OD", "HIV-", "od_nontb_hivneg_phase2")
   #,
-  #list(sel.gene.kaforou.tb_od, "", df.meta.allhiv, "kaforou_2013", 9, 11, "TB", "OD", "HIV+/-", "tb_od_allhiv")
+  #list(sel.phase2.gp.tb_ltbi, "", df.meta, "my_phase2", 1, 3, "TB", "LTBI", "HIV-", "tb_ltbi_hivneg_phase2")
   #,
-  #list(sel.gene.kaforou.tb_ltbi, "", df.meta.allhiv, "kaforou_2013", 9, 10, "TB", "LTBI", "HIV+/-", "tb_ltbi_allhiv")
+  #list(sel.phase2.gp.tb_nontb, "", df.meta.tb_nontb, "my_phase2", 1, 7, "TB", "non-TB", "HIV-", "tb_nontb_hivneg_phase2")
   #,
-  #list(sel.gene.kaforou.tb_nontb, "", df.meta.allhiv.tb_nontb, "kaforou_2013", 9, 12, "TB", "non-TB", "HIV+/-", "tb_nontb_allhiv")
+  list(sel.gene.kaforou.tb_od, "", df.meta.allhiv, "kaforou_2013", 9, 11, "TB", "OD", "HIV+/-", "tb_od_allhiv")
+  ,
+  list(sel.gene.kaforou.tb_ltbi, "", df.meta.allhiv, "kaforou_2013", 9, 10, "TB", "LTBI", "HIV+/-", "tb_ltbi_allhiv")
+  ,
+  list(sel.gene.kaforou.tb_nontb, "", df.meta.allhiv.tb_nontb, "kaforou_2013", 9, 12, "TB", "non-TB", "HIV+/-", "tb_nontb_allhiv")
 )
 
 for (comp in comps){
@@ -266,7 +282,7 @@ for (comp in comps){
     
     df.meta.comp <- comp.meta[ind.comp,]
     
-    if (comp.sel.prots == ""){
+    if (comp.origin == "my_phase2"){
       
       ######################################
       # Process phase 2/ combination lasso #
@@ -370,8 +386,8 @@ for (comp in comps){
     
       sets <- list(
         list(comp.sel.genes, df.gene.all, "gene", "gene")
-        ,
-        list(comp.sel.prots, df.prot.all, "protein", "prot")
+        #,
+        #list(comp.sel.prots, df.prot.all, "protein", "prot")
       )
       
       for (set in sets){
@@ -478,6 +494,11 @@ for (comp in comps){
 }
 
 # ROC curve comparisons
-#test.rocs.tb_od <- roc.test(list.my.rocs[[1]][[1]][[2]][[1]], list#.kaforou.rocs[[1]][[1]][[2]][[1]])
-#test.rocs.tb_ltbi <- roc.test(list.my.rocs[[1]][[2]][[1]], list.kaforou.rocs[[1]][[2]][[1]])
-#test.rocs.tb_nontb <- roc.test(list.my.rocs[[2]][[1]], list.kaforou.rocs[[2]][[1]])
+test.rocs.tb_od <- roc.test(list.my.rocs[[1]][[1]][[2]][[1]], list.kaforou.rocs[[1]][[1]][[2]][[1]])
+test.rocs.tb_ltbi <- roc.test(list.my.rocs[[1]][[2]][[1]], list.kaforou.rocs[[1]][[2]][[1]])
+test.rocs.tb_nontb <- roc.test(list.my.rocs[[2]][[1]], list.kaforou.rocs[[2]][[1]])
+
+test.rocs.tb_od
+test.rocs.tb_ltbi
+test.rocs.tb_nontb
+
