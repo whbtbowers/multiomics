@@ -174,8 +174,6 @@ for (dataset in datasets){
       # Fit to lasso model
       # Feed in BH selected factors and all proteins
       
-      gp.sel.comp.data <- cbind(df.prot.data, sel.comp.data)
-      
       # Cross-validated analysis of coefficients
       foldid <- sample(1:K,size=length(data.matrix(as.numeric(comp.meta$group))),replace=TRUE)
       

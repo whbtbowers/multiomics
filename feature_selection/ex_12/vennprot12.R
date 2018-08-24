@@ -6,7 +6,7 @@ sel.prot.tb_od <- read.csv("../../data/ex_12/feat_sel_2/prot_tb_od_BH_LFC_lasso_
 sel.prot.tb_ltbi <- read.csv("../../data/ex_12/feat_sel_2/prot_tb_ltbi_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 sel.prot.tb_nontb <- read.csv("../../data/ex_12/feat_sel_2/prot_tb_nontb_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 
-date <- "2018-08-21/"
+date <- "2018-08-22/"
 ex_dir <- "ex_12/"
 
   

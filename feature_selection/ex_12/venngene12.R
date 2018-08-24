@@ -6,7 +6,7 @@ sel.gene.tb_od <- read.csv("../../data/ex_12/feat_sel_2/gene_tb_od_BH_LFC_lasso_
 sel.gene.tb_ltbi <- read.csv("../../data/ex_12/feat_sel_2/gene_tb_ltbi_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 sel.gene.tb_nontb <- read.csv("../../data/ex_12/feat_sel_2/gene_tb_nontb_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 
-date <- "2018-08-21/"
+date <- "2018-08-22/"
 ex_dir <- "ex_12/"
 
   
@@ -20,7 +20,7 @@ filename = paste("../../img/", ex_dir, date, "lasso_sel_gene_venn.png", sep=""),
 imagetype = "png",
 col = "transparent",
 fill = c("cornflowerblue", "green", "yellow"),
-main = "Number of selected gene probes for each comparison"
+main = "Number of selected gene probes"
 )
 
 

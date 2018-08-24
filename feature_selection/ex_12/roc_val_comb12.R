@@ -3,11 +3,12 @@ setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_12/")
 
 library(pROC)
 library(ggplot2)
+library(stringr)
 
 set.seed(12)
 
 # To direct to the correct folder
-date <- "2018-08-21/"
+date <- "2018-08-24/"
 ex_dir <- "ex_12/"
 
 # Selected features for tb vs od
@@ -73,6 +74,8 @@ comps <- list(
   list(sel.gene.tb_nontb, sel.prot.tb_nontb, sel.gp.tb_nontb, df.meta.tb_nontb, 1, 7, "TB", "non-TB", "tb_nontb")
 ) 
 
+gene_rocs <- list()
+
 for (comp in comps){
   comp.gene <- comp[[1]]
   comp.prot <- comp[[2]]
@@ -103,14 +106,14 @@ for (comp in comps){
   #Individual protein ROCs
   
   for (i in 1:length(comp.prot$features)){
-    feat <- df.comp.prot[,match(sel.prot.tb_nontb$features[i], colnames(df.comp.prot))]
+    feat <- df.comp.prot[,match(comp.prot$features[i], colnames(df.comp.prot))]
     
     feat.roc <- roc(df.comp.meta$group, feat, auc=TRUE)
     
     # Not all ROCs smoothable; deal with them
     if ((feat.roc$auc == 1) || (feat.roc$auc == -1)){
       
-      png(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_roc", i, ".png", sep=""),
+      pdf(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_roc", comp.prot$gr_features[i], ".pdf", sep=""),
           width = 5*300,        # 5 x 300 pixels
           height = 5*300,
           res = 300,            # 300 pixels per inch
@@ -119,7 +122,7 @@ for (comp in comps){
       plot(feat.roc,
            col="red",
            lwd=1,
-           main=paste(comp.prot$features[i], "," , comp.verb.g1,  "vs", comp.verb.g2),
+           #main=paste(comp.prot$features[i], "," , comp.verb.g1,  "vs", comp.verb.g2),
            legacy.axes = TRUE
       )
       
@@ -137,7 +140,7 @@ for (comp in comps){
     
       #feat.roc.smooth <- smooth(feat.roc)
       
-      png(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_roc", i, ".png", sep=""),
+      pdf(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_roc", comp.prot$gr_features[i], ".pdf", sep=""),
           width = 5*300,        # 5 x 300 pixels
           height = 5*300,
           res = 300,            # 300 pixels per inch
@@ -146,7 +149,7 @@ for (comp in comps){
       plot(feat.roc,
            col="red",
            lwd=1,
-           main=paste(comp.prot$features[i], "," , comp.verb.g1,  "vs", comp.verb.g2),
+           #main=paste(comp.prot$features[i], "," , comp.verb.g1,  "vs", comp.verb.g2),
            legacy.axes = TRUE
       )
       
@@ -171,10 +174,13 @@ for (comp in comps){
     
     ggplot(data, aes(x=inf.group, y=feat, group=inf.group)) + 
       geom_boxplot() +
-      labs(x = "TB status", y="Protein abundance", title =paste("Distribution of DRS values for", comp.prot$features[i], "HIV-patients," , comp.verb.g1,  "vs", comp.verb.g2)) +
+      labs(x = "TB status",
+           y = as.character(str_replace_all(comp.prot$gr_features[i], "_", " "))
+           #title =paste("Distribution of DRS values for", comp.prot$features[i], "HIV-patients," , comp.verb.g1,  "vs", comp.verb.g2)
+           ) +
       scale_x_discrete(labels=c(comp.verb.g1, comp.verb.g2))
     
-    ggsave(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_boxplot", i, ".png", sep=""))
+    ggsave(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_boxplot", comp.prot$gr_features[i], ".pdf", sep=""))
     
   }
   
@@ -185,6 +191,11 @@ for (comp in comps){
     list(df.comp.gp, comp.all, "combined gene and protein", "gp")
   )
   
+  # Set empty variables to become ROC objects for comparison
+  roc.gene <- 0
+  roc.prot <- 0
+  roc.gp <- 0
+  roc.meta <- 0
   
   for (set in sets){
     set.data <- set[[1]]
@@ -298,12 +309,25 @@ for (comp in comps){
     sd.drs.g2 <- sd(drs.g2)
     
     # Get threshold
+    if (set.abbrv == "gp"){
+      drs.threshold <- ((mean.drs.g1/sd.drs.g1)+(mean.drs.g2/sd.drs.g2))/((1/sd.drs.g1)+(1/sd.drs.g2))
     
-    drs.threshold <- ((mean.drs.g1/sd.drs.g1)+(mean.drs.g2/sd.drs.g2))/((1/sd.drs.g1)+(1/sd.drs.g2))
-    
+      print(paste("Threshold for ", comp.verb.g1, " vs ", comp.verb.g2, ": ", drs.threshold, sep=""))
+    }
     # Get ROC
     
     drs.roc <- roc(comp.meta.g1_g2$group, drs.g1_g2, auc=TRUE)
+    
+    roc.groups <- comp.meta.g1_g2$group
+    
+    if (set.abbrv == "prot"){
+      roc.prot <- drs.roc
+    } else if (set.abbrv == "gene"){
+      roc.gene <- drs.roc
+    } else if (set.abbrv == "gp"){
+      roc.gp <- drs.roc
+    }
+    
     #if (set.verbose == "gene"){
     #  my_rocs_list <- list(my_rocs_list, list(drs.roc, comp.abbrv))
     #}
@@ -312,7 +336,7 @@ for (comp in comps){
       
       #drs.roc.smooth <- smooth(drs.roc)
       
-      png(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_roc.png", sep=""),
+      pdf(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_roc.pdf", sep=""),
           width = 5*300,        # 5 x 300 pixels
           height = 5*300,
           res = 300,            # 300 pixels per inch
@@ -340,7 +364,7 @@ for (comp in comps){
       
     } else {
       
-      png(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_roc.png", sep=""),
+      pdf(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_roc.pdf", sep=""),
           width = 5*300,        # 5 x 300 pixels
           height = 5*300,
           res = 300,            # 300 pixels per inch
@@ -374,115 +398,58 @@ for (comp in comps){
       labs(x = "TB status", y="Disease risk score", title =paste("Distribution of DRS values for", set.verbose, "data,", "HIV-patients," , comp.verb.g1,  "vs", comp.verb.g2)) +
       scale_x_discrete(labels=c(comp.verb.g1, comp.verb.g2))
     
-    ggsave(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_boxplot.png", sep=""))
-    
-    #################################################################################################
-    ## Get beta-coefficient ROC curves - First for protein and gene seperately, then both combined ##
-    #################################################################################################
-    
-    # Get data for selected features and betas
-    
-    set.sel.data <- set.data[ , match(set.sel_features$features, colnames(set.data))]
-    betas <- set.sel_features$beta
-    
-    # Calculate beta adjustments
-    
-    b_adj <- c()
-    
-    if (length(set.sel_features$features) == 1){
-      
-      for (j in 1:length(betas)){
-        b_adj <- set.sel.data * betas
-      }
-      
-    } else {
-      
-      for (i in 1:nrow(set.sel.data)){
-        b_adj.i <- c()
-        for (j in 1:length(betas)){
-          b_adj.i.j <- set.sel.data[i, j] * betas[j]
-          b_adj.i <- c(b_adj.i, b_adj.i.j)
-        }
-        
-        b_adj <- c(b_adj, sum(b_adj.i))
-      }
-      
-    }
-    
-    # Get ROC
-    
-    b_adj.roc <- roc(df.comp.meta$group, b_adj, auc=TRUE)
-    #if (set.verbose == "gene"){
-    #  list.my.rocs <- list(list.my.rocs, list(b_adj.roc, comp.abbrv))
-    #}
-    
-    if (b_adj.roc$auc < 1){
-      
-      #b_adj.roc.smooth <- smooth(b_adj.roc)
-      
-      png(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_b_adj_roc.png", sep=""),
-          width = 5*300,        # 5 x 300 pixels
-          height = 5*300,
-          res = 300,            # 300 pixels per inch
-          pointsize = 8) # smaller font size
-      
-      plot(b_adj.roc,
-           col="red",
-           lwd=1,
-           main=paste("ROC curve for selected features for", set.verbose, "data,", "HIV- patients," , comp.verb.g1,  "vs", comp.verb.g2, "(beta-coefficient)"),
-           legacy.axes = TRUE
-      )
-      
-      #lines.roc(b_adj.roc.smooth, col="blue", lwd=3)
-      legend("bottomright",
-             title = paste("AUC =", format(round(b_adj.roc$auc, 2), nsmall = 2)),
-             #legend = c("Empirical data", "Fit"),
-             #col = c("red", "blue"),
-             #lwd = c(1, 3)
-             legend = c("Empirical data"),
-             col = c("red"),
-             lwd = c(1)
-      )
-      
-      dev.off()
-      
-    } else {
-      
-      png(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_b_adj_roc.png", sep=""),
-          width = 5*300,        # 5 x 300 pixels
-          height = 5*300,
-          res = 300,            # 300 pixels per inch
-          pointsize = 8) # smaller font size
-      
-      plot(b_adj.roc,
-           col="red",
-           lwd=1,
-           main=paste("ROC curve for selected features for", set.verbose, "data,", "HIV-patients," , comp.verb.g1,  "vs", comp.verb.g2, "(beta-coefficient)"),
-           legacy.axes = TRUE
-      )
-      
-      legend("bottomright",
-             title = paste("AUC =", format(round(b_adj.roc$auc, 2), nsmall = 2)),
-             legend = c("Empirical data"),
-             col = c("red"),
-             lwd = c(1, 3)
-      )
-      
-      dev.off()
-      
-    }
-    
-  # Create dataframe and ggplot boxplot
-    inf.group <- as.character(df.comp.meta$group)
-    
-    data = data.frame(inf.group, b_adj)
-    
-    ggplot(data, aes(x=inf.group, y=b_adj, group=inf.group)) + 
-      geom_boxplot() +
-      labs(x = "TB status", y="Beta adjustment score", title =paste("Distribution of Beta adjustment scores for", set.verbose, "data,", "HIV-patients," , comp.verb.g1,  "vs", comp.verb.g2, "(beta-coefficient)")) +
-      scale_x_discrete(labels=c(comp.verb.g1, comp.verb.g2))
-    
-    ggsave(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_b_adj_boxplot.png", sep=""))
+    ggsave(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_boxplot.pdf", sep=""))
      
   }
+  
+  gene_rocs <- list(gene_rocs, roc.gene)
+  
+  # Plot superimposed ROCs
+  pdf(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_val_superimposed_drs_rocs.pdf", sep=""),
+      width = 5*300,        # 5 x 300 pixels
+      height = 5*300,
+      res = 300,            # 300 pixels per inch
+      pointsize = 8) # smaller font size
+  
+  plot(roc.gp,
+       col = alpha("purple", 0.7),
+       lwd=4,
+       #main=paste("Superimposed ROC curve for selected features for seperate and combined data types, HIV-" , comp.verb.g1,  "vs", comp.verb.g2),
+       legacy.axes = TRUE,
+       cex.lab=3,
+       xlab="",
+       ylab=""
+       #par(mai=c(10,10,10,10))
+  )
+  
+  par(mar=c(10,10,10,10))
+  
+  #title(main="", xlab="1 - Specificity", ylab="Sensitivity", cex.lab=3, pos=1)
+  
+  lines.roc(roc.gene,
+            col = alpha("blue", 0.7)
+  )
+
+  lines.roc(roc.prot,
+            col = alpha("red", 0.7)
+  )
+  
+  legend("bottomright",
+         #title = paste("AUC =", format(round(drs.roc$auc, 2), nsmall = 2)),
+         legend = c("Gene", "Protein", "Combined"),
+         col = c("blue", "red", "purple"),
+         lwd = c(2, 2, 4)
+  )
+  
+  dev.off()
+  
 }
+
+# Run roc11_drs_combo first to get kaforou rocs
+test_rocs_tb_od <- roc.test(gene_rocs[[1]][[1]][[2]], kaforou_rocs_list[[1]][[1]][[2]][[1]])
+test_rocs_tb_ltbi <- roc.test(gene_rocs[[1]][[2]], kaforou_rocs_list[[1]][[2]][[1]])
+test_rocs_tb_nontb <- roc.test(gene_rocs[[2]], kaforou_rocs_list[[2]][[1]])
+
+test_rocs_tb_od
+test_rocs_tb_ltbi
+test_rocs_tb_nontb

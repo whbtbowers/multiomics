@@ -7,7 +7,7 @@ library(ggplot2)
 set.seed(12)
 
 # To direct to the correct folder
-date <- "2018-08-21/"
+date <- "2018-08-24/"
 ex_dir <- "ex_12/"
 
 # Selected features for tb vs od
@@ -102,10 +102,14 @@ for (comp in comps){
   
   #Individual protein ROCs
   
+  prot.aucs <- c()
+  
   for (i in 1:length(comp.prot$features)){
     feat <- df.comp.prot[,match(sel.prot.tb_nontb$features[i], colnames(df.comp.prot))]
     
     feat.roc <- roc(df.comp.meta$group, feat, auc=TRUE)
+    
+    prot.aucs <- c(prot.aucs, feat.roc$auc)
     
     # Not all ROCs smoothable; deal with them
     if ((feat.roc$auc == 1) || (feat.roc$auc == -1)){
@@ -177,6 +181,22 @@ for (comp in comps){
     ggsave(paste("../../img/", ex_dir, date, comp.abbrv, "_prot_indv_boxplot", i, ".png", sep=""))
     
   }
+  
+  df.aucs.prots <- cbind(comp.gene, data.frame(prot.aucs))
+  write.csv(df.aucs.prots, paste("../../data/", ex_dir, "feat_sel_2/", "prot_", comp.abbrv, "_BH_LFC_lasso_sig_factors_withaucs.csv", sep=""), row.names=TRUE)
+  # Get individual aucs for gene features
+  
+  gene.aucs <- c()
+  
+  for (i in 1:length(comp.gene$features)){
+    feat <- df.comp.gene[,match(sel.gene.tb_nontb$features[i], colnames(df.comp.gene))]
+    
+    feat.roc <- roc(df.comp.meta$group, feat, auc=TRUE)
+    gene.aucs <- c(gene.aucs, feat.roc$auc)
+  }
+  
+  df.aucs.genes <-  cbind(comp.gene, data.frame(gene.aucs))
+  write.csv(df.aucs.genes, paste("../../data/", ex_dir, "feat_sel_2/", "gene_", comp.abbrv, "_BH_LFC_lasso_sig_factors_withaucs.csv", sep=""), row.names=TRUE)
   
   # Seperately compare protein and  gene, then both combined by DRS 
   sets <- list(
