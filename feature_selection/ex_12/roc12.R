@@ -7,7 +7,7 @@ library(ggplot2)
 set.seed(12)
 
 # To direct to the correct folder
-date <- "2018-08-24/"
+date <- "2018-08-25/"
 ex_dir <- "ex_12/"
 
 # Selected features for tb vs od

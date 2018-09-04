@@ -1,5 +1,5 @@
-setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_12/")
-#setwd("/project/home17/whb17/Documents/project3/project_files/preprocessing/ex_9/")
+#setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_12/")
+setwd("/project/home17/whb17/Documents/project3/project_files/preprocessing/ex_9/")
 
 library(pROC)
 library(ggplot2)
@@ -8,7 +8,7 @@ library(stringr)
 set.seed(12)
 
 # To direct to the correct folder
-date <- "2018-08-24/"
+date <- "2018-09-03/"
 ex_dir <- "ex_12/"
 
 # Selected features for tb vs od
@@ -29,11 +29,23 @@ sel.prot.tb_nontb <- read.csv("../../data/ex_12/feat_sel_2/prot_tb_nontb_BH_LFC_
 sel.gp.tb_nontb <- read.csv("../../data/ex_12/feat_sel_1_2/gp_tb_nontb_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 
 # Complete datasets
+
+df.gene.train <- read.csv("../../data/ex_12/gene_train_body.csv", header=TRUE, row.names = 1)  #Gene validation set
+df.prot.train <- read.csv("../../data/ex_12/prot_train_body.csv", header=TRUE, row.names = 1)  #Protein validation set
+df.gp.train <- cbind(df.prot.train, df.gene.train)
+df.meta.train <- read.csv("../../data/ex_12/gp_train_meta.csv", header=TRUE, row.names = 1)
+df.meta.train$group <- as.character(df.meta.train$group)
+
 df.gene.val <- read.csv("../../data/ex_12/gene_validation_body.csv", header=TRUE, row.names = 1)  #Gene validation set
-df.prot.val <- read.csv("../../data/ex_12/prot_validation_body.csv", header=TRUE, row.names = 1)  #Gene validation set
+df.prot.val <- read.csv("../../data/ex_12/prot_validation_body.csv", header=TRUE, row.names = 1)  #Protein validation set
 df.gp <- cbind(df.prot.val, df.gene.val)
 df.meta <- read.csv("../../data/ex_12/gp_validation_meta.csv", header=TRUE, row.names = 1)
 df.meta$group <- as.character(df.meta$group)
+
+testrains <- list(
+  list(),
+  list()
+)
 
 # Create meta variant for easy tb vs non-tb identification w/in hiv status group
 df.meta.tb_nontb <- df.meta
@@ -103,105 +115,6 @@ for (comp in comps){
   df.comp.gp <- df.gp[ind.comp,]
   df.comp.meta <- comp.meta[ind.comp,]
   
-  #Individual protein ROCs
-  
-  for (i in 1:length(comp.prot$features)){
-    feat <- df.comp.prot[,match(comp.prot$features[i], colnames(df.comp.prot))]
-    
-    feat.roc <- roc(df.comp.meta$group, feat, auc=TRUE)
-    
-    # Not all ROCs smoothable; deal with them
-    if ((feat.roc$auc == 1) || (feat.roc$auc == -1)){
-      
-      pdf(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_roc", comp.prot$gr_features[i], ".pdf", sep=""),
-          width = 5*300,        # 5 x 300 pixels
-          height = 5*300,
-          res = 300,            # 300 pixels per inch
-          pointsize = 8) # smaller font size
-      
-      plot(feat.roc,
-           col="red",
-           lwd=1,
-           #main=paste(comp.prot$features[i], "," , comp.verb.g1,  "vs", comp.verb.g2),
-           legacy.axes = TRUE
-      )
-      
-      legend("bottomright",
-             title = paste("AUC =", format(round(feat.roc$auc, 2), nsmall = 2)),
-             #legend = c("Empirical data", "Fit"),
-             #col = c("red", "blue"),
-             #lwd = c(1, 3)
-             legend = c("Empirical data"),
-             col = c("red"),
-             lwd = c(1)
-      )
-      
-    } else {
-    
-      #feat.roc.smooth <- smooth(feat.roc)
-      
-      pdf(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_roc", comp.prot$gr_features[i], ".pdf", sep=""),
-          width = 5*300,        # 5 x 300 pixels
-          height = 5*300,
-          res = 300,            # 300 pixels per inch
-          pointsize = 8) # smaller font size
-      
-      plot(feat.roc,
-           col="red",
-           lwd=1,
-           #main=paste(comp.prot$features[i], "," , comp.verb.g1,  "vs", comp.verb.g2),
-           legacy.axes = TRUE
-      )
-      
-      #lines.roc(feat.roc.smooth, col="blue", lwd=3)
-      legend("bottomright",
-             title = paste("AUC =", format(round(feat.roc$auc, 2), nsmall = 2)),
-             #legend = c("Empirical data", "Fit"),
-             #col = c("red", "blue"),
-             #lwd = c(1, 3)
-             legend = c("Empirical data"),
-             col = c("red"),
-             lwd = c(1)
-      )
-      
-      dev.off()
-    }
-    
-    # Create dataframe and ggplot boxplot
-    inf.group <- as.character(df.comp.meta$group)
-    
-    data = data.frame(inf.group, feat)
-    
-    ggplot(data, aes(x=inf.group, y=feat, group=inf.group)) + 
-      geom_boxplot() +
-      labs(x = "TB status",
-           y = as.character(str_replace_all(comp.prot$gr_features[i], "_", " "))
-           #title =paste("Distribution of DRS values for", comp.prot$features[i], "HIV-patients," , comp.verb.g1,  "vs", comp.verb.g2)
-           ) +
-      scale_x_discrete(labels=c(comp.verb.g1, comp.verb.g2))
-    
-    ggsave(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_boxplot", comp.prot$gr_features[i], ".pdf", sep=""))
-    
-  }
-  
-  df.aucs.prots <- cbind(comp.gene, data.frame(prot.aucs))
-  write.csv(df.aucs.prots, paste("../../data/", ex_dir, "feat_sel_2/", "prot_", comp.abbrv, "_BH_LFC_lasso_sig_factors_withaucs.csv", sep=""), row.names=TRUE)
-  
-  # Get individual aucs for gene features
-  
-  gene.aucs <- c()
-  
-  for (i in 1:length(comp.gene$features)){
-    feat <- df.comp.gene[,match(sel.gene.tb_nontb$features[i], colnames(df.comp.gene))]
-    
-    feat.roc <- roc(df.comp.meta$group, feat, auc=TRUE)
-    gene.aucs <- c(gene.aucs, feat.roc$auc)
-  }
-  
-  df.aucs.genes <-  cbind(comp.gene, data.frame(gene.aucs))
-  write.csv(df.aucs.genes, paste("../../data/", ex_dir, "feat_sel_2/", "gene_", comp.abbrv, "_BH_LFC_lasso_sig_factors_withaucs.csv", sep=""), row.names=TRUE)
-  
-  
   # Seperately compare protein and  gene, then both combined by DRS 
   sets <- list(
     list(df.comp.gene, comp.gene, "gene", "gene"),
@@ -214,6 +127,14 @@ for (comp in comps){
   roc.prot <- 0
   roc.gp <- 0
   roc.meta <- 0
+  
+  #Get melt tables for combined boxplot
+  melt.gene <- 0
+  melt.prot <- 0
+  melt.gp <- 0
+  drs.threshold <- 0
+    
+  
   
   for (set in sets){
     set.data <- set[[1]]
@@ -326,140 +247,207 @@ for (comp in comps){
     sd.drs.g1 <- sd(drs.g1)
     sd.drs.g2 <- sd(drs.g2)
     
-    # Get threshold
+    # Get threshold and get boxplot
     if (set.abbrv == "gp"){
-      drs.threshold <- ((mean.drs.g1/sd.drs.g1)+(mean.drs.g2/sd.drs.g2))/((1/sd.drs.g1)+(1/sd.drs.g2))
-    
-      print(paste("Threshold for ", comp.verb.g1, " vs ", comp.verb.g2, ": ", drs.threshold, sep=""))
+      
+      melt.gp <- data.frame(comp.meta.g1_g2$group, drs.g1_g2)
+      colnames(melt.gp) <- c("group", "gp.drs")
+      drs.threshold.gp <- ((mean.drs.g1/sd.drs.g1)+(mean.drs.g2/sd.drs.g2))/((1/sd.drs.g1)+(1/sd.drs.g2))
+      
+      bplot.gp <- ggplot(data=melt.gp, aes(x=group, y=gp.drs)) +
+        geom_boxplot(fill="#FF0447", alpha=0.8) +
+        geom_jitter(aes(x=group,y=gp.drs),
+                    position=position_jitter(width=0.1,height=0),
+                    alpha=0.6,
+                    size=3) +
+        geom_hline(yintercept = drs.threshold.gp) +
+        xlab("Group") +
+        scale_x_discrete(labels=c(comp.verb.g1, comp.verb.g2)) +
+        ylab("DRS") +
+        theme_minimal() +
+        theme(axis.text.x  = element_text(size = 10),
+              axis.text.y = element_text(size = 10),
+              axis.title.x = element_blank(),
+              axis.title.y = element_text(size = 20)
+        )
+      
+      ggsave(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_thresh_boxplot.png", sep=""),
+             bplot.gp,
+             width=5, 
+             height=15, 
+             unit="cm")
+      
+    } else if (set.abbrv == "prot"){
+      
+      drs.threshold.prot <- ((mean.drs.g1/sd.drs.g1)+(mean.drs.g2/sd.drs.g2))/((1/sd.drs.g1)+(1/sd.drs.g2))
+      
+      melt.prot <- data.frame(comp.meta.g1_g2$group, drs.g1_g2)
+      colnames(melt.prot) <- c("group", "prot.drs")
+      drs.threshold.prot <- ((mean.drs.g1/sd.drs.g1)+(mean.drs.g2/sd.drs.g2))/((1/sd.drs.g1)+(1/sd.drs.g2))
+      
+      bplot.prot <- ggplot(data=melt.prot, aes(x=group, y=prot.drs)) +
+        geom_boxplot(fill="#FFDE04", alpha=0.8) +
+        geom_jitter(aes(x=group,y=prot.drs),
+                    position=position_jitter(width=0.1,height=0),
+                    alpha=0.6,
+                    size=3) +
+        geom_hline(yintercept = drs.threshold.prot) +
+        xlab("Group") +
+        scale_x_discrete(labels=c(comp.verb.g1, comp.verb.g2)) +
+        ylab("DRS") +
+        theme_minimal() +
+        theme(axis.text.x  = element_text(size = 10),
+              axis.text.y = element_text(size = 10),
+              axis.title.x = element_blank(),
+              axis.title.y = element_text(size = 20)
+        )
+      
+      ggsave(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_thresh_boxplot.png", sep=""),
+             bplot.prot,
+             width=5, 
+             height=15, 
+             unit="cm")
+      
+    } else if (set.abbrv == "gene"){
+      
+      drs.threshold.gene <- ((mean.drs.g1/sd.drs.g1)+(mean.drs.g2/sd.drs.g2))/((1/sd.drs.g1)+(1/sd.drs.g2))
+      
+      melt.gene <- data.frame(comp.meta.g1_g2$group, drs.g1_g2)
+      colnames(melt.gene) <- c("group", "gene.drs")
+      drs.threshold.gene <- ((mean.drs.g1/sd.drs.g1)+(mean.drs.g2/sd.drs.g2))/((1/sd.drs.g1)+(1/sd.drs.g2))
+      
+      bplot.gene <- ggplot(data=melt.gene, aes(x=group, y=gene.drs)) +
+        geom_boxplot(fill="#048AFF", alpha=0.8) +
+        geom_jitter(aes(x=group,y=gene.drs),
+                    position=position_jitter(width=0.1,height=0),
+                    alpha=0.6,
+                    size=3) +
+        geom_hline(yintercept = drs.threshold.gene) +
+        xlab("Group") +
+        scale_x_discrete(labels=c(comp.verb.g1, comp.verb.g2)) +
+        ylab("DRS") +
+        theme_minimal() +
+        theme(axis.text.x  = element_text(size = 10),
+              axis.text.y = element_text(size = 10),
+              axis.title.x = element_blank(),
+              axis.title.y = element_text(size = 20)
+        )
+      
+      ggsave(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_thresh_boxplot.png", sep=""),
+             bplot.gene,
+             width=5, 
+             height=15, 
+             unit="cm")
+      
     }
+    
     # Get ROC
     
-    drs.roc <- roc(comp.meta.g1_g2$group, drs.g1_g2, auc=TRUE)
+    drs.roc <- roc(comp.meta.g1_g2$group, drs.g1_g2, auc=TRUE, ci=TRUE)
     
     roc.groups <- comp.meta.g1_g2$group
     
     if (set.abbrv == "prot"){
       roc.prot <- drs.roc
+      
+     
     } else if (set.abbrv == "gene"){
       roc.gene <- drs.roc
+      
+     
+      
     } else if (set.abbrv == "gp"){
       roc.gp <- drs.roc
-    }
-    
-    #if (set.verbose == "gene"){
-    #  my_rocs_list <- list(my_rocs_list, list(drs.roc, comp.abbrv))
-    #}
-    
-    if (drs.roc$auc < 1){
       
-      #drs.roc.smooth <- smooth(drs.roc)
       
-      pdf(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_roc.pdf", sep=""),
-          width = 5*300,        # 5 x 300 pixels
-          height = 5*300,
-          res = 300,            # 300 pixels per inch
-          pointsize = 8) # smaller font size
       
-      plot(drs.roc,
-           col="red",
-           lwd=1,
-           main=paste("ROC curve for selected features for", set.verbose, "data,", "HIV-patients," , comp.verb.g1,  "vs", comp.verb.g2),
-           legacy.axes = TRUE
-      )
-      
-      #lines.roc(drs.roc.smooth, col="blue", lwd=3)
-      legend("bottomright",
-             title = paste("AUC =", format(round(drs.roc$auc, 2), nsmall = 2)),
-             #legend = c("Empirical data", "Fit"),
-             #col = c("red", "blue"),
-             #lwd = c(1, 3)
-             legend = c("Empirical data"),
-             col = c("red"),
-             lwd = c(1)
-      )
-      
-      dev.off()
-      
-    } else {
-      
-      pdf(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_roc.pdf", sep=""),
-          width = 5*300,        # 5 x 300 pixels
-          height = 5*300,
-          res = 300,            # 300 pixels per inch
-          pointsize = 8) # smaller font size
-      
-      plot(drs.roc,
-           col="red",
-           lwd=1,
-           main=paste("ROC curve for selected features for", set.verbose, "data,", "HIV-patients," , comp.verb.g1,  "vs", comp.verb.g2),
-           legacy.axes = TRUE
-      )
-      
-      legend("bottomright",
-             title = paste("AUC =", format(round(drs.roc$auc, 2), nsmall = 2)),
-             legend = c("Empirical data"),
-             col = c("red"),
-             lwd = c(1, 3)
-      )
-      
-      dev.off()
-      
-    }
-    
-    # Create dataframe and ggplot boxplot
-    inf.group <- as.character(comp.meta.g1_g2$group)
-    
-    data = data.frame(inf.group, drs.g1_g2)
-    
-    ggplot(data, aes(x=inf.group, y=drs.g1_g2, group=inf.group)) + 
-      geom_boxplot() +
-      labs(x = "TB status", y="Disease risk score", title =paste("Distribution of DRS values for", set.verbose, "data,", "HIV-patients," , comp.verb.g1,  "vs", comp.verb.g2)) +
-      scale_x_discrete(labels=c(comp.verb.g1, comp.verb.g2))
-    
-    ggsave(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_boxplot.pdf", sep=""))
      
+    }
   }
   
   gene_rocs <- list(gene_rocs, roc.gene)
   
+  #Display spec, sens, and ci of roc
+  print(comp.abbrv)
+  print(roc.gene$thresholds)
+  print(roc.gene$sensitivities)
+  print(roc.gene$specificities)
+  print(roc.gene$ci)
+  print(ci.thresholds(roc.gene))
+  print(roc.prot$thresholds)
+  print(roc.prot$sensitivities)
+  print(roc.prot$specificities)
+  print(roc.prot$ci)
+  print(ci.thresholds(roc.prot))
+  print(roc.gp$thresholds)
+  print(roc.gp$sensitivities)
+  print(roc.gp$specificities)
+  print(roc.gp$ci)
+  print(ci.thresholds(roc.gp))
+  
+  
   # Plot superimposed ROCs
-  pdf(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_val_superimposed_drs_rocs.pdf", sep=""),
-      width = 5*300,        # 5 x 300 pixels
-      height = 5*300,
+  png(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_val_superimposed_drs_rocs.png", sep=""),
+      width = 3000,        # 5 x 300 pixels
+      height = 3000,
       res = 300,            # 300 pixels per inch
       pointsize = 8) # smaller font size
   
   plot(roc.gp,
-       col = alpha("purple", 0.7),
-       lwd=4,
+       col = alpha("#FF0447", 0.7),
+       lwd=32,
        #main=paste("Superimposed ROC curve for selected features for seperate and combined data types, HIV-" , comp.verb.g1,  "vs", comp.verb.g2),
        legacy.axes = TRUE,
-       cex.lab=3,
+       #cex.lab=4,
+       cex.axis=2,
        xlab="",
-       ylab=""
-       #par(mai=c(10,10,10,10))
+       ylab="",
+       asp=NA
   )
   
-  par(mar=c(10,10,10,10))
+  #axis(side=1, cex.axis=1.5)
+  #axis(side=2, cex.axis=1.5)
+  
+  par(mar=c(5,5,5,5))
   
   #title(main="", xlab="1 - Specificity", ylab="Sensitivity", cex.lab=3, pos=1)
   
   lines.roc(roc.gene,
-            col = alpha("blue", 0.7)
+            col = alpha("#048AFF", 1),
+            lwd=8
   )
 
   lines.roc(roc.prot,
-            col = alpha("red", 0.7)
+            col = alpha("#FFDE04", 1),
+            lwd=8
   )
   
   legend("bottomright",
-         #title = paste("AUC =", format(round(drs.roc$auc, 2), nsmall = 2)),
-         legend = c("Gene", "Protein", "Combined"),
-         col = c("blue", "red", "purple"),
-         lwd = c(2, 2, 4)
+         legend = c(paste("Gene", "(AUC =", format(round(roc.gene$auc, 2), nsmall = 2), ")", sep=" "),
+                    paste("Protein", "(AUC =", format(round(roc.prot$auc, 2), nsmall = 2), ")", sep=" "),
+                    paste("Combined", "(AUC =", format(round(roc.gp$auc, 2), nsmall = 2), ")", sep=" ")
+                    ),
+         col = c("#048AFF", "#FFDE04", "#FF0447"),
+         lwd = c(8, 8, 16),
+         cex=3
   )
   
+  
+  
   dev.off()
+  
+  # Plot side-by side boxplots w/threshold
+  
+  #melt.drs <- rbind(melt.prot, melt.gene, melt.gp)
+  
+  #ggplot(data=melt.gp, aes(x=tb_stat, y=drs.value)) +
+    #geom_boxplot(aes(fill=omtype)) +
+   # geom_jitter(aes(x=tb_stat,y=drs.value),
+      #          position=position_jitter(width=0.1,height=0),
+   #             alpha=0.6,
+      #          size=3) +
+    #geom_hline(yintercept=drs.threshold)
+  
   
 }
 

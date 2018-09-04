@@ -1,4 +1,5 @@
-setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_12/")
+#setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_12/")
+setwd("/project/home17/whb17/Documents/project3/project_files/feature_selection/ex_12/")
 
 library(VennDiagram)
 
@@ -22,6 +23,7 @@ col = "transparent",
 fill = c("cornflowerblue", "green", "yellow"),
 main = "Number of selected gene probes"
 )
+
 
 
 

@@ -1,4 +1,5 @@
-setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_12/")
+#setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_12/")
+setwd("/project/home17/whb17/Documents/project3/project_files/feature_selection/ex_12/")
 
 library(limma)
 library(heatmap3)
@@ -16,7 +17,7 @@ df.meta <- read.csv("../../data/ex_12/gp_train_meta.csv", header=TRUE, row.names
 df.meta$group <- as.character(df.meta$group)
 
 # To direct to the correct folder
-date <- "2018-08-21/"
+date <- "2018-08-25/"
 ex_dir <- "ex_12/"
 
 # Parameters
@@ -69,10 +70,10 @@ df.meta.hiv_neg.tb_nontb$group[df.meta.hiv_neg.tb_nontb$group == 6] <- 7
 
 comparisons <- list(
   list(df.gene.body.hiv_neg.tb_ltbi, df.prot.body.hiv_neg.tb_ltbi, df.meta.hiv_neg.tb_ltbi, "TB vs LTBI", "tb_ltbi")
-  ,
-  list(df.gene.body.hiv_neg.tb_od, df.prot.body.hiv_neg.tb_od, df.meta.hiv_neg.tb_od, "TB vs OD", "tb_od")
-  ,
-  list(df.gene.body.hiv_neg.tb_nontb, df.prot.body.hiv_neg.tb_nontb, df.meta.hiv_neg.tb_nontb, "TB vs nontb", "tb_nontb")
+  #,
+  #list(df.gene.body.hiv_neg.tb_od, df.prot.body.hiv_neg.tb_od, df.meta.hiv_neg.tb_od, "TB vs OD", "tb_od")
+  #,
+  #list(df.gene.body.hiv_neg.tb_nontb, df.prot.body.hiv_neg.tb_nontb, df.meta.hiv_neg.tb_nontb, "TB vs nontb", "tb_nontb")
 )
 
 for (comparison in comparisons){
@@ -123,7 +124,7 @@ for (comparison in comparisons){
     }
   }
   
-  sig_P.gene = tab.res.gene$adj.P.Val[ind.dif_ex.gene]
+  #sig_P.gene = tab.res.gene$adj.P.Val[ind.dif_ex.gene]
   sig_factor.gene = rownames(tab.res.gene)[ind.dif_ex.gene]
   sig_rows.gene = tab.res.gene[ind.dif_ex.gene,]
   write.csv(sig_rows.gene, paste("../../data/", ex_dir, "feat_sel/gene_", comp.abrv, "_BH_LFC_sig_factors.csv", sep=""))
@@ -156,7 +157,7 @@ for (comparison in comparisons){
   ind.dif_ex.prot <- c()
   
   for (k in 1:nrow(tab.res.prot)){
-    if ((abs(tab.res.prot$logFC[k]) > 0.5) & (tab.res.prot$adj.P.Val[k] < 0.05)){
+    if ((abs(tab.res.prot$logFC[k]) > 0.5) & (tab.res.prot$adj.P.Val[k] < 0.02)){
       ind.dif_ex.prot <- c(ind.dif_ex.prot, k)
     }
   }

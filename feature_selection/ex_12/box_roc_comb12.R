@@ -8,7 +8,7 @@ library(stringr)
 set.seed(12)
 
 # To direct to the correct folder
-date <- "2018-08-24/"
+date <- "2018-08-26/"
 ex_dir <- "ex_12/"
 
 # Selected features for tb vs od
@@ -105,15 +105,18 @@ for (comp in comps){
   
   #Individual protein ROCs
   
+  prot.aucs <- c()
+  
   for (i in 1:length(comp.prot$features)){
     feat <- df.comp.prot[,match(comp.prot$features[i], colnames(df.comp.prot))]
     
     feat.roc <- roc(df.comp.meta$group, feat, auc=TRUE)
+    prot.aucs <- c(prot.aucs, feat.roc$auc)
     
     # Not all ROCs smoothable; deal with them
     if ((feat.roc$auc == 1) || (feat.roc$auc == -1)){
       
-      pdf(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_roc", comp.prot$gr_features[i], ".pdf", sep=""),
+      png(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_roc", comp.prot$gr_features[i], ".png", sep=""),
           width = 5*300,        # 5 x 300 pixels
           height = 5*300,
           res = 300,            # 300 pixels per inch
@@ -140,7 +143,7 @@ for (comp in comps){
     
       #feat.roc.smooth <- smooth(feat.roc)
       
-      pdf(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_roc", comp.prot$gr_features[i], ".pdf", sep=""),
+      png(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_roc", comp.prot$gr_features[i], ".png", sep=""),
           width = 5*300,        # 5 x 300 pixels
           height = 5*300,
           res = 300,            # 300 pixels per inch
@@ -180,7 +183,7 @@ for (comp in comps){
            ) +
       scale_x_discrete(labels=c(comp.verb.g1, comp.verb.g2))
     
-    ggsave(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_boxplot", comp.prot$gr_features[i], ".pdf", sep=""))
+    ggsave(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_prot_val_indv_boxplot", comp.prot$gr_features[i], ".png", sep=""))
     
   }
   
@@ -354,7 +357,7 @@ for (comp in comps){
       
       #drs.roc.smooth <- smooth(drs.roc)
       
-      pdf(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_roc.pdf", sep=""),
+      png(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_roc.png", sep=""),
           width = 5*300,        # 5 x 300 pixels
           height = 5*300,
           res = 300,            # 300 pixels per inch
@@ -382,7 +385,7 @@ for (comp in comps){
       
     } else {
       
-      pdf(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_roc.pdf", sep=""),
+      png(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_roc.png", sep=""),
           width = 5*300,        # 5 x 300 pixels
           height = 5*300,
           res = 300,            # 300 pixels per inch
@@ -416,22 +419,22 @@ for (comp in comps){
       labs(x = "TB status", y="Disease risk score", title =paste("Distribution of DRS values for", set.verbose, "data,", "HIV-patients," , comp.verb.g1,  "vs", comp.verb.g2)) +
       scale_x_discrete(labels=c(comp.verb.g1, comp.verb.g2))
     
-    ggsave(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_boxplot.pdf", sep=""))
+    ggsave(paste("../../img/", ex_dir, date, "val/", set.abbrv, "_", comp.abbrv, "_val_drs_boxplot.png", sep=""))
      
   }
   
   gene_rocs <- list(gene_rocs, roc.gene)
   
   # Plot superimposed ROCs
-  pdf(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_val_superimposed_drs_rocs.pdf", sep=""),
-      width = 5*300,        # 5 x 300 pixels
-      height = 5*300,
+  png(paste("../../img/", ex_dir, date, "val/", comp.abbrv, "_val_superimposed_drs_rocs.png", sep=""),
+      width = 3000,        # 5 x 300 pixels
+      height = 3000,
       res = 300,            # 300 pixels per inch
       pointsize = 8) # smaller font size
   
   plot(roc.gp,
        col = alpha("purple", 0.7),
-       lwd=4,
+       lwd=8,
        #main=paste("Superimposed ROC curve for selected features for seperate and combined data types, HIV-" , comp.verb.g1,  "vs", comp.verb.g2),
        legacy.axes = TRUE,
        cex.lab=3,
@@ -440,24 +443,33 @@ for (comp in comps){
        #par(mai=c(10,10,10,10))
   )
   
+  #axis(side=1, cex.axis=1.5)
+  #axis(side=2, cex.axis=1.5)
+  
   par(mar=c(10,10,10,10))
   
   #title(main="", xlab="1 - Specificity", ylab="Sensitivity", cex.lab=3, pos=1)
   
   lines.roc(roc.gene,
-            col = alpha("blue", 0.7)
+            col = alpha("blue", 0.7),
+            lwd=4
   )
 
   lines.roc(roc.prot,
-            col = alpha("red", 0.7)
+            col = alpha("red", 0.7),
+            lwd=4
   )
   
   legend("bottomright",
-         #title = paste("AUC =", format(round(drs.roc$auc, 2), nsmall = 2)),
-         legend = c("Gene", "Protein", "Combined"),
+         legend = c(paste("Gene", "(AUC =", format(round(roc.gene$auc, 2), nsmall = 2), ")", sep=" "),
+                    paste("Protein", "(AUC =", format(round(roc.prot$auc, 2), nsmall = 2), ")", sep=" "),
+                    paste("Combined", "(AUC =", format(round(roc.gp$auc, 2), nsmall = 2), ")", sep=" ")
+                    ),
          col = c("blue", "red", "purple"),
-         lwd = c(2, 2, 4)
+         lwd = c(4, 4, 8)
   )
+  
+  
   
   dev.off()
   
