@@ -1,4 +1,4 @@
-setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_9/")
+setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_11/")
 
 library(tictoc)
 library(limma)
@@ -9,26 +9,26 @@ set.seed(12)
 tic()
 
 # Combined protein and gene probe set
-df.gene.all <- read.csv("../../data/ex_9/gene_train_body.csv", header=TRUE, row.names = 1)  #Gene test/train set
-df.prot.all <- read.csv("../../data/ex_9/prot_train_body.csv", header=TRUE, row.names = 1)  # Protein train set
+df.gene.all <- read.csv("../../data/ex_11/gene_train_body.csv", header=TRUE, row.names = 1)  #Gene test/train set
+df.prot.all <- read.csv("../../data/ex_11/prot_train_body.csv", header=TRUE, row.names = 1)  # Protein train set
 df.gp.all <- cbind(df.prot.all, df.gene.all)
-df.meta <- read.csv("../../data/ex_9/gp_train_meta.csv", header=TRUE, row.names = 1)
+df.meta <- read.csv("../../data/ex_11/gp_train_meta.csv", header=TRUE, row.names = 1)
 df.meta$group <- as.character(df.meta$group)
 
 # Selected features from DE
 
-sel.gene.tb_od <- read.csv("../../data/ex_10/feat_sel_1_2/gene_tb_od_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
-#sel.prot.tb_od <- read.csv("../../data/ex_10/feat_sel/prot_tb_od_BH_LFC_sig_factors.csv", header=TRUE, row.names = 1)
+sel.gene.tb_od <- read.csv("../../data/ex_11/feat_sel_1_2/gene_tb_od_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+#sel.prot.tb_od <- read.csv("../../data/ex_11/feat_sel/prot_tb_od_BH_LFC_sig_factors.csv", header=TRUE, row.names = 1)
 #sel.gp.tb_od <- rbind(sel.prot.tb_od, sel.gene.tb_od)
 
 
-sel.gene.tb_ltbi <- read.csv("../../data/ex_10/feat_sel_1_2/gene_tb_od_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
-#sel.prot.tb_ltbi <- read.csv("../../data/ex_10/feat_sel/prot_tb_od_BH_LFC_sig_factors.csv", header=TRUE, row.names = 1)
+sel.gene.tb_ltbi <- read.csv("../../data/ex_11/feat_sel_1_2/gene_tb_od_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+#sel.prot.tb_ltbi <- read.csv("../../data/ex_11/feat_sel/prot_tb_od_BH_LFC_sig_factors.csv", header=TRUE, row.names = 1)
 #sel.gp.tb_ltbi <- rbind(sel.prot.tb_ltbi, sel.gene.tb_ltbi)
 
 
-sel.gene.tb_nontb <- read.csv("../../data/ex_10/feat_sel_1_2/gene_tb_nontb_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
-#sel.prot.tb_nontb <- read.csv("../../data/ex_10/feat_sel/prot_tb_nontb_BH_LFC_sig_factors.csv", header=TRUE, row.names = 1)
+sel.gene.tb_nontb <- read.csv("../../data/ex_11/feat_sel_1_2/gene_tb_nontb_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+#sel.prot.tb_nontb <- read.csv("../../data/ex_11/feat_sel/prot_tb_nontb_BH_LFC_sig_factors.csv", header=TRUE, row.names = 1)
 #sel.gp.tb_nontb <- rbind(sel.prot.tb_nontb, sel.gene.tb_nontb)
 
 
@@ -42,12 +42,12 @@ df.meta.tb_nontb$group[df.meta.tb_nontb$group == 5] <- 8
 df.meta.tb_nontb$group <- as.character(df.meta.tb_nontb$group)
 
 # To direct to the correct folder
-date <- "2018-08-16/"
-ex_dir <- "ex_10/"
+date <- "2018-08-20/"
+ex_dir <- "ex_11/"
 feat_sel <- "feat_sel_1_2/"
 
 # Parameters
-alpha = 1 # lasso
+alpha = 0.5 # Elastic net
 K = 20
 
 # comparison sets
@@ -104,10 +104,10 @@ for (comp in comps){
   tab.res <- topTable(fit, coef=4, n=ncol(comp.sel.data))
   
    ####################
-  ## Lasso selection ##
+  ## EN selection ##
   ####################
   
-  # Fit to lasso
+  # Fit to EN
   
   # Cross-validated analysis of coefficients
   foldid <- sample(1:K,size=length(data.matrix(as.numeric(df.meta.comp$group))),replace=TRUE)
@@ -119,7 +119,7 @@ for (comp in comps){
                      alpha=alpha
   )
   
-  png(paste("../../img/", ex_dir, date, comp.abbrv, "_BH_LFC_lasso_cv_glmnet_coeff.png", sep=""),
+  png(paste("../../img/", ex_dir, date, comp.abbrv, "_BH_LFC_EN_cv_glmnet_coeff.png", sep=""),
       width = 5*300,        # 5 x 300 pixels
       height = 5*300,
       res = 300,            # 300 pixels per inch
@@ -166,7 +166,7 @@ for (comp in comps){
   
   df.coef.cvfit.lambda1se <- cbind(df.coef.cvfit.lambda1se, reg_dir)
   
-  write.csv(df.coef.cvfit.lambda1se, paste("../../data/", ex_dir, feat_sel, comp.abbrv, "_BH_LFC_lasso_sig_factors.csv", sep=""), row.names=1:nrow(df.coef.cvfit.lambda1se))
+  write.csv(df.coef.cvfit.lambda1se, paste("../../data/", ex_dir, feat_sel, comp.abbrv, "_BH_LFC_EN_sig_factors.csv", sep=""), row.names=1:nrow(df.coef.cvfit.lambda1se))
   
 }
 

@@ -1,4 +1,4 @@
-setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_9/")
+setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_11/")
 
 library(tictoc)
 library(limma)
@@ -10,20 +10,20 @@ set.seed(12)
 
 tic()
 
-df.gene.body <- read.csv("../../data/ex_9/gene_train_body.csv", header=TRUE, row.names = 1)  #Gene test/train set
+df.gene.body <- read.csv("../../data/ex_11/gene_train_body.csv", header=TRUE, row.names = 1)  #Gene test/train set
 
-df.prot.body <- read.csv("../../data/ex_9/prot_train_body.csv", header=TRUE, row.names = 1)  # Protein train set
+df.prot.body <- read.csv("../../data/ex_11/prot_train_body.csv", header=TRUE, row.names = 1)  # Protein train set
 
 df.gp.body <- cbind(df.prot.body, df.gene.body)
 
-#df.gp.body <- read.csv("../../data/ex_9/gp_train_body.csv", header=TRUE, row.names = 1)
+#df.gp.body <- read.csv("../../data/ex_11/gp_train_body.csv", header=TRUE, row.names = 1)
 
-df.meta <- read.csv("../../data/ex_9/gp_train_meta.csv", header=TRUE, row.names = 1)
+df.meta <- read.csv("../../data/ex_11/gp_train_meta.csv", header=TRUE, row.names = 1)
 df.meta$group <- as.character(df.meta$group)
 
 # To direct to the correct folder
-date <- "2018-08-15/"
-ex_dir <- "ex_10/"
+date <- "2018-08-20/"
+ex_dir <- "ex_11/"
 feat_sel <- "feat_sel/"
 
 # Parameters
@@ -33,17 +33,17 @@ K = 20
 
 datasets = list(
   list(df.gene.body, df.meta, "gene", "gene")
-  ,
-  list(df.prot.body, df.meta, "protein", "prot")
+  #,
+  #list(df.prot.body, df.meta, "protein", "prot")
   #,
   #list(df.gp.body, df.meta, "combined gene and protein", "gp")
 )
 
-for (i in 1:length(datasets)){
-  set.data <- datasets[[i]][[1]]
-  set.meta <- datasets[[i]][[2]]
-  set.verbose <- datasets[[i]][[3]]
-  set.abrv <- datasets[[i]][[4]]
+for (dataset in datasets){
+  set.data <- dataset[[1]]
+  set.meta <- dataset[[2]]
+  set.verbose <- dataset[[3]][[1]]
+  set.abrv <- dataset[[4]][[1]]
   
   # Select HIV- TB vs LTBI patients
   
@@ -74,7 +74,7 @@ for (i in 1:length(datasets)){
   # Select HIV- TB vs nontb patients
   
   for (i in 1:nrow(set.data)){
-    if((set.meta$group[i] == 1) || (set.meta$group[i] == 3) || (set.meta$group[i] == 5)){
+    if((set.meta$group[i] == 1) || (set.meta$group[i] == 3) || (set.meta$group[i] == 6)){
       ind.hiv_neg.tb_nontb <- c(ind.hiv_neg.tb_nontb, i)
     }
   }

@@ -1,5 +1,5 @@
-setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_9/")
-#setwd("/project/home17/whb17/Documents/project3/project_files/preprocessing/ex_9/")
+setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_11/")
+#setwd("/project/home17/whb17/Documents/project3/project_files/preprocessing/ex_11/")
 
 library(pROC)
 library(ggplot2)
@@ -7,8 +7,8 @@ library(ggplot2)
 set.seed(12)
 
 # To direct to the correct folder
-date <- "2018-08-17/"
-ex_dir <- "ex_10/"
+date <- "2018-08-22/"
+ex_dir <- "ex_12/"
 
 # Features selected in Kaforou 2013
 sel.gene.kaforou.tb_od <- read.csv("../../data/kaforou_2013/gene_tb_od_kaforou_2013.csv", header=TRUE, row.names = 1)
@@ -16,40 +16,40 @@ sel.gene.kaforou.tb_ltbi <- read.csv("../../data/kaforou_2013/gene_tb_ltbi_kafor
 sel.gene.kaforou.tb_nontb <- read.csv("../../data/kaforou_2013/gene_tb_nontb_kaforou_2013.csv", header=TRUE, row.names = 1)
 
 # Selected features for tb vs od
-sel.gene.tb_od <- read.csv("../../data/ex_10/feat_sel_2/gene_tb_od_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
-sel.prot.tb_od <- read.csv("../../data/ex_10/feat_sel_2/prot_tb_od_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+sel.gene.tb_od <- read.csv("../../data/ex_11/feat_sel_2/gene_tb_od_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+sel.prot.tb_od <- read.csv("../../data/ex_11/feat_sel_2/prot_tb_od_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 
 # Selected features for tb vs ltbi
-sel.gene.tb_ltbi <- read.csv("../../data/ex_10/feat_sel_2/gene_tb_ltbi_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
-sel.prot.tb_ltbi <- read.csv("../../data/ex_10/feat_sel_2/prot_tb_ltbi_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+sel.gene.tb_ltbi <- read.csv("../../data/ex_11/feat_sel_2/gene_tb_ltbi_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+sel.prot.tb_ltbi <- read.csv("../../data/ex_11/feat_sel_2/prot_tb_ltbi_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 
 # Selected features for tb vs non-tb
-sel.gene.tb_nontb <- read.csv("../../data/ex_10/feat_sel_2/gene_tb_nontb_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
-sel.prot.tb_nontb <- read.csv("../../data/ex_10/feat_sel_2/prot_tb_nontb_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+sel.gene.tb_nontb <- read.csv("../../data/ex_11/feat_sel_2/gene_tb_nontb_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+sel.prot.tb_nontb <- read.csv("../../data/ex_11/feat_sel_2/prot_tb_nontb_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 
 # Selected features for combined lasso
 
-sel.p1.gp.tb_od <- read.csv("../../data/ex_10/feat_sel_1_2/gp_tb_od_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+sel.p1.gp.tb_od <- read.csv("../../data/ex_11/feat_sel_1_2/gp_tb_od_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 
-sel.p1.gp.tb_ltbi <- read.csv("../../data/ex_10/feat_sel_1_2/gp_tb_ltbi_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+sel.p1.gp.tb_ltbi <- read.csv("../../data/ex_11/feat_sel_1_2/gp_tb_ltbi_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 
-sel.p1.gp.tb_nontb <- read.csv("../../data/ex_10/feat_sel_1_2/gp_tb_nontb_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+sel.p1.gp.tb_nontb <- read.csv("../../data/ex_11/feat_sel_1_2/gp_tb_nontb_hivneg_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 
 
 # Selected features for phase 2 comparisons
 
-sel.phase2.gp.tb_od <- read.csv("../../data/ex_10/feat_sel_2/tb_od_hivneg_BH_LFC_lasso_phase2_sig_factors.csv", header=TRUE, row.names = 1)
+sel.phase2.gp.tb_od <- read.csv("../../data/ex_11/feat_sel_2/tb_od_hivneg_BH_LFC_lasso_phase2_sig_factors.csv", header=TRUE, row.names = 1)
 
-sel.phase2.gp.tb_ltbi <- read.csv("../../data/ex_10/feat_sel_2/tb_ltbi_hivneg_BH_LFC_lasso_phase2_sig_factors.csv", header=TRUE, row.names = 1)
+sel.phase2.gp.tb_ltbi <- read.csv("../../data/ex_11/feat_sel_2/tb_ltbi_hivneg_BH_LFC_lasso_phase2_sig_factors.csv", header=TRUE, row.names = 1)
 
-sel.phase2.gp.tb_nontb <- read.csv("../../data/ex_10/feat_sel_2/tb_nontb_hivneg_BH_LFC_lasso_phase2_sig_factors.csv", header=TRUE, row.names = 1)
+sel.phase2.gp.tb_nontb <- read.csv("../../data/ex_11/feat_sel_2/tb_nontb_hivneg_BH_LFC_lasso_phase2_sig_factors.csv", header=TRUE, row.names = 1)
 
 
 # Complete datasets
-df.gene.all <- read.csv("../../data/ex_9/gene_train_body.csv", header=TRUE, row.names = 1)  #Gene test/train set
-df.prot.all <- read.csv("../../data/ex_9/prot_train_body.csv", header=TRUE, row.names = 1)  # Protein train set
+df.gene.all <- read.csv("../../data/ex_11/gene_train_body.csv", header=TRUE, row.names = 1)  #Gene test/train set
+df.prot.all <- read.csv("../../data/ex_11/prot_train_body.csv", header=TRUE, row.names = 1)  # Protein train set
 df.gp.all <- cbind(df.prot.all, df.gene.all)
-df.meta <- read.csv("../../data/ex_9/gp_train_meta.csv", header=TRUE, row.names = 1)
+df.meta <- read.csv("../../data/ex_11/gp_train_meta.csv", header=TRUE, row.names = 1)
 df.meta$group <- as.character(df.meta$group)
 
 # Create meta variant for easy tb vs non-tb identification w/in hiv status group
@@ -104,31 +104,31 @@ comps <- list(
   #,
   #list(sel.gene.tb_nontb, "", df.meta.tb_nontb, "my", 1, 7, "TB", "non-TB", "HIV-","tb_nontb_hivneg")
   #,
-  list(sel.gene.tb_od, sel.prot.tb_ltbi, df.meta, "my", 1, 6, "TB", "OD", "HIV-","tb_od_hivneg")
-  ,
-  list(sel.gene.tb_ltbi, sel.prot.tb_ltbi, df.meta, "my", 1, 3, "TB", "LTBI", "HIV-","tb_ltbi_hivneg")
-  ,
-  list(sel.gene.tb_nontb, sel.prot.tb_nontb, df.meta.tb_nontb, "my", 1, 7, "TB", "non-TB", "HIV-","tb_nontb_hivneg")
-  ,
+  #list(sel.gene.tb_od, sel.prot.tb_ltbi, df.meta, "my", 1, 6, "TB", "OD", "HIV-","tb_od_hivneg")
+  #,
+  #list(sel.gene.tb_ltbi, sel.prot.tb_ltbi, df.meta, "my", 1, 3, "TB", "LTBI", "HIV-","tb_ltbi_hivneg")
+  #,
+  #list(sel.gene.tb_nontb, sel.prot.tb_nontb, df.meta.tb_nontb, "my", 1, 7, "TB", "non-TB", "HIV-","tb_nontb_hivneg")
+  #,
   #list(sel.phase2.gp.tb_od, "", df.meta, "my_phase2", 1, 6, "TB", "OD", "HIV-", "tb_od_hivneg_phase2")
   #,
-  list(sel.p1.gp.tb_od, "", df.meta, "my_phase2", 1, 6, "TB", "OD", "HIV-", "gp_tb_od_hivneg")
-  ,
-  list(sel.p1.gp.tb_ltbi, "", df.meta, "my_phase2", 1, 3, "TB", "LTBI", "HIV-", "gp_tb_ltbi_hivneg")
-  ,
-  list(sel.p1.gp.tb_nontb, "", df.meta.tb_nontb, "my_phase2", 1, 7, "TB", "non-TB", "HIV-", "gp_tb_nontb_hivneg")
-  ,
+  #list(sel.p1.gp.tb_od, "", df.meta, "my_phase2", 1, 6, "TB", "OD", "HIV-", "gp_tb_od_hivneg")
+  #,
+  #list(sel.p1.gp.tb_ltbi, "", df.meta, "my_phase2", 1, 3, "TB", "LTBI", "HIV-", "gp_tb_ltbi_hivneg")
+  #,
+  #list(sel.p1.gp.tb_nontb, "", df.meta.tb_nontb, "my_phase2", 1, 7, "TB", "non-TB", "HIV-", "gp_tb_nontb_hivneg")
+  #,
   #list(sel.phase2.gp.tb_od, "", df.meta.tb_od, "my_phase2", 1, 6, "TB", "OD", "HIV-", "od_nontb_hivneg_phase2")
   #,
   #list(sel.phase2.gp.tb_ltbi, "", df.meta, "my_phase2", 1, 3, "TB", "LTBI", "HIV-", "tb_ltbi_hivneg_phase2")
   #,
   #list(sel.phase2.gp.tb_nontb, "", df.meta.tb_nontb, "my_phase2", 1, 7, "TB", "non-TB", "HIV-", "tb_nontb_hivneg_phase2")
   #,
-  list(sel.gene.kaforou.tb_od, "", df.meta.allhiv, "kaforou_2013", 9, 11, "TB", "OD", "HIV+/-", "tb_od_allhiv")
+  list(sel.gene.kaforou.tb_od, "-", df.meta.allhiv, "kaforou_2013", 9, 11, "TB", "OD", "HIV+/-", "tb_od_allhiv")
   ,
-  list(sel.gene.kaforou.tb_ltbi, "", df.meta.allhiv, "kaforou_2013", 9, 10, "TB", "LTBI", "HIV+/-", "tb_ltbi_allhiv")
+  list(sel.gene.kaforou.tb_ltbi, "-", df.meta.allhiv, "kaforou_2013", 9, 10, "TB", "LTBI", "HIV+/-", "tb_ltbi_allhiv")
   ,
-  list(sel.gene.kaforou.tb_nontb, "", df.meta.allhiv.tb_nontb, "kaforou_2013", 9, 12, "TB", "non-TB", "HIV+/-", "tb_nontb_allhiv")
+  list(sel.gene.kaforou.tb_nontb, "-", df.meta.allhiv.tb_nontb, "kaforou_2013", 9, 12, "TB", "non-TB", "HIV+/-", "tb_nontb_allhiv")
 )
 
 for (comp in comps){

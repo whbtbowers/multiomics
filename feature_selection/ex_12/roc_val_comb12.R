@@ -184,24 +184,6 @@ for (comp in comps){
     
   }
   
-  df.aucs.prots <- cbind(comp.gene, data.frame(prot.aucs))
-  write.csv(df.aucs.prots, paste("../../data/", ex_dir, "feat_sel_2/", "prot_", comp.abbrv, "_BH_LFC_lasso_sig_factors_withaucs.csv", sep=""), row.names=TRUE)
-  
-  # Get individual aucs for gene features
-  
-  gene.aucs <- c()
-  
-  for (i in 1:length(comp.gene$features)){
-    feat <- df.comp.gene[,match(sel.gene.tb_nontb$features[i], colnames(df.comp.gene))]
-    
-    feat.roc <- roc(df.comp.meta$group, feat, auc=TRUE)
-    gene.aucs <- c(gene.aucs, feat.roc$auc)
-  }
-  
-  df.aucs.genes <-  cbind(comp.gene, data.frame(gene.aucs))
-  write.csv(df.aucs.genes, paste("../../data/", ex_dir, "feat_sel_2/", "gene_", comp.abbrv, "_BH_LFC_lasso_sig_factors_withaucs.csv", sep=""), row.names=TRUE)
-  
-  
   # Seperately compare protein and  gene, then both combined by DRS 
   sets <- list(
     list(df.comp.gene, comp.gene, "gene", "gene"),

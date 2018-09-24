@@ -18,8 +18,8 @@ df.meta <- read.csv("../../data/ex_9/gp_train_meta.csv", header=TRUE, row.names 
 df.meta$group <- as.character(df.meta$group)
 
 # To direct to the correct folder
-date <- "2018-08-16/"
-ex_dir <- "ex_10/"
+date <- "2018-08-20/"
+ex_dir <- "ex_11/"
 feat_sel <- "feat_sel_1_2/"
 
 # Parameters

@@ -1,4 +1,4 @@
-setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_10/")
+setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_11/")
 
 library(tictoc)
 library(stringr)
@@ -11,7 +11,7 @@ comps <- c('tb_od', 'tb_ltbi', 'tb_nontb')
 
 for (comp in comps){
   
-  sig.gp.emn.factors <- read.csv(paste("../../data/ex_10/feat_sel_1_2/gp_", comp, "_hivneg_BH_LFC_lasso_sig_factors.csv", sep=""), header=TRUE, row.names = 1)
+  sig.gp.emn.factors <- read.csv(paste("../../data/ex_11/feat_sel_1_2/gp_", comp, "_hivneg_BH_LFC_lasso_sig_factors.csv", sep=""), header=TRUE, row.names = 1)
   #Get rownames
   sig.gp.emn.factors.names <- sig.gp.emn.factors$features
   
@@ -32,8 +32,8 @@ for (comp in comps){
 
   for (set in sets){
       
-      sig.factors <- read.csv(paste("../../data/ex_10/feat_sel_1_2/", set, "_", comp, "_BH_LFC_sig_factors.csv", sep=""), header=TRUE, row.names = 1)
-      sig.emn.factors <- read.csv(paste("../../data/ex_10/feat_sel_1_2/", set, "_", comp, "_BH_LFC_lasso_sig_factors.csv", sep=""), header=TRUE, row.names = 1)
+      sig.factors <- read.csv(paste("../../data/ex_11/feat_sel_1_2/", set, "_", comp, "_BH_LFC_sig_factors.csv", sep=""), header=TRUE, row.names = 1)
+      sig.emn.factors <- read.csv(paste("../../data/ex_11/feat_sel_1_2/", set, "_", comp, "_BH_LFC_lasso_sig_factors.csv", sep=""), header=TRUE, row.names = 1)
       
       print(paste("Number of factors for ", set, " and ", comp, " before lasso: ", nrow(sig.factors), ". After phase1 lasso using lambda+1se as threshold: ", nrow(sig.emn.factors), sep=""))
   }

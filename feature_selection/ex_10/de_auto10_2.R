@@ -7,9 +7,12 @@ library(glmnet)
 
 set.seed(12)
 
-df.gene.body <- read.csv("../../data/ex_9/gene_train_body.csv", header=TRUE, row.names = 1)  #Gene test/train set
+#df.gene.body <- read.csv("../../data/ex_9/gene_train_body.csv", header=TRUE, row.names = 1)  #Gene test/train set
 df.prot.body <- read.csv("../../data/ex_9/prot_train_body.csv", header=TRUE, row.names = 1)  # Protein train set
-df.gp.body <- cbind(df.prot.body, df.gene.body)
+#df.gp.body <- cbind(df.prot.body, df.gene.body)
+
+df.meta <- read.csv("../../data/ex_9/gp_train_meta.csv", header=TRUE, row.names = 1)
+df.meta$group <- as.character(df.meta$group)
 
 df.meta.tb_nontb <- df.meta
 df.meta.tb_nontb$group <- as.numeric(df.meta.tb_nontb$group)
@@ -19,9 +22,18 @@ df.meta.tb_nontb$group[df.meta.tb_nontb$group == 4] <- 8
 df.meta.tb_nontb$group[df.meta.tb_nontb$group == 5] <- 8
 df.meta.tb_nontb$group <- as.character(df.meta.tb_nontb$group)
 
+# To direct to the correct folder
+date <- "2018-08-15/"
+ex_dir <- "ex_10/"
+feat_sel <- "feat_sel/"
+
+# Parameters
+alpha = 1 # lasso
+K = 20 # for KNN
+
 datasets <- list(
-  list(df.gene.body, "gene", "gene"),
-  list(df.gene.body, "prot", "prot")
+  #list(df.gene.body, "gene", "gene"),
+  list(df.prot.body, "prot", "prot")
 )
 
 comps <- list(
@@ -48,13 +60,13 @@ for (dataset in datasets){
     ind.comp <- c()
     
     for (i in 1:nrow(set.data)){
-      if((comp.meta$group[i] == comp.g1) || (comp.meta$group[i] == comp.g2)){
+      if((full.meta$group[i] == comp.g1) || (full.meta$group[i] == comp.g2)){
         ind.comp <- c(ind.comp, i)
       }
     }
     
     comp.data <- set.data[ind.comp, ]
-    comp.meta <- full.meat[ind.comp, ]
+    comp.meta <- full.meta[ind.comp, ]
     
     #############################
     ## Limma-based DE analysis ##
@@ -99,24 +111,39 @@ for (dataset in datasets){
     sig_P = tab.res$adj.P.Val[ind.dif_ex]
     sig_factor = rownames(tab.res)[ind.dif_ex]
     sig_rows = tab.res[ind.dif_ex,]
-    write.csv(sig_rows, paste("../../data/", ex_dir, feat_sel,set.abrv, "_", comp.abrv, "_BH_LFC_sig_factors.csv", sep=""))
+    #write.csv(sig_rows, paste("../../data/", ex_dir, "feat_sel/",set.abrv, "_", comp.abrv, "_BH_LFC_sig_factors.csv", sep=""))
     
     #Select significant features
     sel.comp.data <- comp.data[match(sig_factor, colnames(comp.data))]
     
     ###########################
-    ## Lasso selection ##
+    ## Elastic net selection ##
     ###########################
     
     # Fit to elastic net
     # Feed in BH selected factors
     
+    fit.glm <- glmnet(as.matrix(sel.comp.data), 
+                      comp.meta$group, 
+                      family="gaussian", 
+                      alpha=alpha
+    )
+    
+    png(paste("../../img/", ex_dir, date, set.abrv, "_", comp.abrv, "_BH_LFC_lasso_glmnet_coeff.png", sep=""),
+        width = 5*300,        # 5 x 300 pixels
+        height = 5*300,
+        res = 300,            # 300 pixels per inch
+        pointsize = 8        # smaller font size
+    )
+    
+    plot(fit.glm, xvar = "lambda", label=TRUE)
+    dev.off()
     
     # Cross-validated analysis of coefficients
     foldid <- sample(1:K,size=length(data.matrix(as.numeric(comp.meta$group))),replace=TRUE)
     
     cvfit <- cv.glmnet(data.matrix(sel.comp.data), 
-                       data.matrix(as.numeric(comp.meta$group)), 
+                       data.matrix(as.numeric(comp.meta$group)),
                        family="gaussian",
                        foldid = foldid,
                        alpha=alpha
@@ -151,30 +178,7 @@ for (dataset in datasets){
       features <- features[-1]
     }
     
-    # Attach beta coefficients
-    beta <- tab.res[match(df.coef.cvfit.lambda1se$features, rownames(tab.res)),]$B
-    logFC <- tab.res[match(df.coef.cvfit.lambda1se$features, rownames(tab.res)),]$logFC
-    df.coef.cvfit.lambda1se <- cbind(df.coef.cvfit.lambda1se, beta)
-    
-    # Add label desribing direction of expression
-    reg_dir <- c()
-    
-    for (l in 1:length(logFC)){
-      if (logFC[l] < 0){
-        reg_dir <- c(reg_dir, "down")
-      } else {
-        reg_dir <- c(reg_dir, "up")
-      }
-    }
-    
-    df.coef.cvfit.lambda1se <- cbind(df.coef.cvfit.lambda1se, reg_dir)
-    
-    write.csv(df.coef.cvfit.lambda1se, paste("../../data/", ex_dir, feat_sel,set.abrv, "_", comp.abrv, "_BH_LFC_lasso_sig_factors.csv", sep=""), row.names=1:nrow(df.coef.cvfit.lambda1se))
-    
-    # Select columns from initial data
-    sel.set.data <- set.data[,match(features, colnames(set.data))]
-    
-    write.csv(sel.set.data, paste("../../data/", ex_dir,"sel_", set.abrv, "_", comp.abrv, "_body.csv", sep=""), row.names = TRUE)
+    write.csv(df.coef.cvfit.lambda1se, paste("../../data/", ex_dir, "feat_sel/",set.abrv, "_", comp.abrv, "_BH_LFC_lasso_sig_factors.csv", sep=""), row.names=1:nrow(df.coef.cvfit.lambda1se))
     
   }
 }

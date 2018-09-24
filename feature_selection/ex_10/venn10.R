@@ -1,45 +1,27 @@
-setwd("/home/whb17/Documents/project3/project_files/preprocessing/ex_6")
+setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_10/")
 
 library(VennDiagram)
 
-df.gene.meta <- read.csv("../../data/ex_6/gene_data_meta.csv", header=TRUE, row.names = 1, na.strings = c("", "NA")) # Gene meta
-df.prot.meta <- read.csv("../../data/ex_6/prot_data_meta.csv", header=TRUE, row.names = 1, na.strings = c("", "NA")) # Protein meta
+sel.gene.tb_od <- read.csv("../../data/ex_10/feat_sel_1_2/gene_tb_od_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+sel.gene.tb_ltbi <- read.csv("../../data/ex_10/feat_sel_1_2/gene_tb_ltbi_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
+sel.gene.tb_nontb <- read.csv("../../data/ex_10/feat_sel_1_2/gene_tb_nontb_BH_LFC_lasso_sig_factors.csv", header=TRUE, row.names = 1)
 
-# Remove patients with missing protein or array IDs
+date <- "2018-08-16/"
+ex_dir <- "ex_10/"
 
-for (i in rev(1:nrow(df.gene.meta))){
-  if((is.na(df.gene.meta$prot.id[i])) || (is.na(df.gene.meta$array.id[i]))){
-    df.gene.meta <- df.gene.meta[-i,]
-  }
-}
-
-for (i in rev(1:nrow(df.prot.meta))){
-  if((is.na(df.prot.meta$prot.id[i])) || (is.na(df.prot.meta$array.id[i]))){
-    df.prot.meta <- df.prot.meta[-i,]
-  }
-}
-
-# Set date
-date <- "2018-07-16"
-
-testcols <- list(
-  list("prot_id", 1),
-  list("array_id", 2)
+  
+venn.diagram(x = list(
+  "TB vs OD" = sel.gene.tb_od$features,
+  "TB vs LTBI" = sel.gene.tb_ltbi$features,
+  "TB vs non-TB" = sel.gene.tb_nontb$features
+  
+),
+filename = paste("../../img/", ex_dir, date, "sel_gene_venn.png", sep=""),
+imagetype = "png",
+col = "transparent",
+fill = c("cornflowerblue", "green", "yellow"),
+main = "Number of selected gene probes for each comparison"
 )
 
-for (i in 1:length(testcols)){
-  abrv <- testcols[[i]][[1]][1]
-  colnum <- testcols[[i]][[2]][1]
-  
-  # Create venn diagram
-  
-  venn.diagram(x = list(
-    "Gene data" = df.gene.meta[,colnum],
-    "Protein data" = df.prot.meta[,colnum]
-  ),
-  filename = paste("../../img/ex_6/", date, "/venn_", abrv,".png", sep=""),
-  imagetype= "png"
-  )
-}
 
 

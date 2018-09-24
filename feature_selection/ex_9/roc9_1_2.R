@@ -1,5 +1,5 @@
-#setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_9/")
-setwd("/project/home17/whb17/Documents/project3/project_files/preprocessing/ex_9/")
+setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_9/")
+#setwd("/project/home17/whb17/Documents/project3/project_files/preprocessing/ex_9/")
 
 library(pROC)
 library(ggplot2)
@@ -8,7 +8,7 @@ library(ggplot2)
 set.seed(12)
 
 # To direct to the correct folder
-date <- "2018-08-04/"
+date <- "2018-08-07/"
 ex_dir <- "ex_9/"
 
 # Features selected in Kaforou 2013
@@ -149,7 +149,7 @@ dev.off()
 
 # Get ROC of my DRS values
 
-my.roc <- roc(df.meta.hiv_neg.tb_od$group, drs.my.hiv_neg.tb_od)
+my.roc <- roc(df.meta.hiv_neg.tb_od$group, drs.my.hiv_neg.tb_od, auc=TRUE)
 my.roc.smooth <- smooth(my.roc)
 
 png(paste("../../img/", ex_dir, date,"tb_od_roc.png", sep=""),
@@ -158,25 +158,34 @@ png(paste("../../img/", ex_dir, date,"tb_od_roc.png", sep=""),
     res = 300,            # 300 pixels per inch
     pointsize = 8) # smaller font size
 
-plot(my.roc.smooth, main="ROC curve for selected factors, TB vs OD", legacy.axes = TRUE)
+plot(my.roc, col="red", lwd=1, main="ROC curve for selected factors, TB vs OD", legacy.axes = TRUE)
+lines.roc(my.roc.smooth, col="blue", lwd=3)
+legend("bottomright",
+       title = paste("AUC =", format(round(my.roc$auc, 2), nsmall = 2)),
+       legend = c("Empirical data", "Fit"),
+       col = c("red", "blue"),
+       lwd = c(1, 3)
+       )
+
+
 dev.off()
 
 # Get boxplot of my DRS values
 
-png(paste("../../img/", ex_dir, date,"tb_od_drs_boxplot.png", sep=""),
-    width = 5*300,        # 5 x 300 pixels
-    height = 5*300,
-    res = 300,            # 300 pixels per inch
-    pointsize = 8) # smaller font size
+#png(paste("../../img/", ex_dir, date,"tb_od_drs_boxplot.png", sep=""),
+#    width = 5*300,        # 5 x 300 pixels
+#    height = 5*300,
+#    res = 300,            # 300 pixels per inch
+#    pointsize = 8) # smaller font size
 
-plot.new()
-par(xaxt="n", mar=c(10,5,3,1))
-boxplot(as.numeric(df.meta.hiv_neg.tb_od$group), drs.my.hiv_neg.tb_od, col=c("red", "blue"))
-lablist<-as.vector(c("OD", "TB"))
-axis(1, at=seq(1, 2, by=1), labels = c("TB status", "DRS"))
-text(seq(1, 2, by=1), par("usr")[3] - 0.2, labels = lablist, srt = 90, pos = 2, xpd = TRUE)
-title(paste( "Distribution of DRS values for TB and OD", sep=" "))
-dev.off()
+#plot.new()
+#par(xaxt="n", mar=c(10,5,3,1))
+#boxplot(as.numeric(df.meta.hiv_neg.tb_od$group), drs.my.hiv_neg.tb_od, col=c("red", "blue"))
+#lablist<-as.vector(c("OD", "TB"))
+#axis(1, at=seq(1, 2, by=1), labels = c("TB status", "DRS"))
+#text(seq(1, 2, by=1), par("usr")[3] - 0.2, labels = lablist, srt = 90, pos = 2, xpd = TRUE)
+#title(paste( "Distribution of DRS values for TB and OD", sep=" "))
+#dev.off()
 
 #Get details of ROCS
 auc(my.roc)
