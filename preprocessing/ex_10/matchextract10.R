@@ -1,8 +1,8 @@
 setwd("/home/whb17/Documents/project3/project_files/preprocessing/ex_10")
 
 # Gene data
-df.gene.meta <- read.csv("../../data/ex_10/gene_data_meta.csv", header=TRUE, row.names = 1, na.strings = c("", "NA")) # Gene meta
-df.gene.body <- read.csv("../../data/ex_10/gene_init_data_body.csv", header=TRUE, row.names = 1, na.strings = c("", "NA")) # Gene body
+df.gene.meta <- read.csv("../../data/ex_8/gene_data_meta.csv", header=TRUE, row.names = 1, na.strings = c("", "NA")) # Gene meta
+df.gene.body <- read.csv("../../data/ex_8/gene_init_data_body.csv", header=TRUE, row.names = 1, na.strings = c("", "NA")) # Gene body
 
 # Protein data
 df.prot.meta <- read.csv("../../data/ex_6/prot_data_meta.csv", header=TRUE, row.names = 1, na.strings = c("", "NA")) # Protein meta
@@ -45,9 +45,9 @@ df.sel.gene.body <- df.gene.body[ind.gene.meta,]
 df.all.body <- cbind(df.sel.prot.body, df.sel.gene.body)
 
 # Write to CSV
-write.csv(df.all.meta, paste("../../data/ex_10/gp_data_meta.csv", sep=""), row.names=TRUE)
-write.csv(df.sel.prot.body, paste("../../data/ex_10/prot_data_body.csv", sep=""), row.names=TRUE)
-write.csv(df.sel.gene.body, paste("../../data/ex_10/gene_data_body.csv", sep=""), row.names=TRUE)
+write.csv(df.all.meta, paste("../../data/ex_12/gp_data_meta.csv", sep=""), row.names=TRUE)
+write.csv(df.sel.prot.body, paste("../../data/ex_12/prot_data_body.csv", sep=""), row.names=TRUE)
+write.csv(df.sel.gene.body, paste("../../data/ex_12/gene_data_body.csv", sep=""), row.names=TRUE)
 
 #Count patients
 print("Quantities listed as total-80%-20%")
