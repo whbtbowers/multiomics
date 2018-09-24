@@ -1,16 +1,16 @@
-setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_11/")
+setwd("/home/whb17/Documents/project3/project_files/feature_selection/ex_12/")
 
 set.seed(12)
 
 print("Loading metadata")
-df.all.meta <- read.csv("../../data/ex_11/gp_data_meta.csv", header=TRUE, row.names = 1)
+df.all.meta <- read.csv("../../data/ex_12/gp_data_meta.csv", header=TRUE, row.names = 1)
 df.all.meta$group <- as.character(df.all.meta$group)
 
 print("Loading gene data - this will take a while")
-df.gene.body <- read.csv("../../data/ex_11/gene_data_body_l2t_qn.csv", header=TRUE, row.names = 1) 
+df.gene.body <- read.csv("../../data/ex_12/gene_data_body_l2t_qn.csv", header=TRUE, row.names = 1) 
 
 print("Loading protein data")
-df.prot.body <- read.csv("../../data/ex_11/prot_data_body_l2t_sn.csv", header=TRUE, row.names = 1)
+df.prot.body <- read.csv("../../data/ex_12/prot_data_body_l2t_qn.csv", header=TRUE, row.names = 1)
 
 # Total number of patients in validation set
 tot.num_20 <- 0
@@ -60,12 +60,12 @@ df.meta.test_train <-df.all.meta[-tot.ind.validation,]
 
 print("Writing CSVs")
 
-write.csv(df.gene.body.validation, paste("../../data/ex_11/gene_validation_body.csv", sep=""),row.names=TRUE)
-write.csv(df.gene.body.test_train, paste("../../data/ex_11/gene_train_body.csv", sep=""),row.names=TRUE)
+write.csv(df.gene.body.validation, paste("../../data/ex_12/gene_validation_body.csv", sep=""),row.names=TRUE)
+write.csv(df.gene.body.test_train, paste("../../data/ex_12/gene_train_body.csv", sep=""),row.names=TRUE)
 
-write.csv(df.prot.body.validation, "../../data/ex_11/prot_validation_body.csv",row.names=TRUE)
-write.csv(df.prot.body.test_train, "../../data/ex_11/prot_train_body.csv",row.names=TRUE)
+write.csv(df.prot.body.validation, "../../data/ex_12/prot_validation_body.csv",row.names=TRUE)
+write.csv(df.prot.body.test_train, "../../data/ex_12/prot_train_body.csv",row.names=TRUE)
 
-write.csv(df.meta.validation, "../../data/ex_11/gp_validation_meta.csv", row.names=TRUE)
-write.csv(df.meta.test_train, "../../data/ex_11/gp_train_meta.csv", row.names=TRUE)
+write.csv(df.meta.validation, "../../data/ex_12/gp_validation_meta.csv", row.names=TRUE)
+write.csv(df.meta.test_train, "../../data/ex_12/gp_train_meta.csv", row.names=TRUE)
 
